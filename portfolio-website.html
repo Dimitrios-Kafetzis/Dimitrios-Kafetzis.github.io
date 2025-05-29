@@ -1,0 +1,1452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dimitrios Kafetzis - Portfolio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #34a853;
+            --accent-color: #ea4335;
+            --text-dark: #202124;
+            --text-light: #5f6368;
+            --bg-light: #f8f9fa;
+            --bg-white: #ffffff;
+            --border-color: #dadce0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-dark);
+            background-color: var(--bg-light);
+        }
+
+        /* Header Styles */
+        header {
+            background-color: var(--bg-white);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Hero Section */
+        .hero {
+            margin-top: 80px;
+            padding: 4rem 2rem;
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .hero .subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .hero .description {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            opacity: 0.85;
+            animation: fadeInUp 0.8s ease-out 0.4s both;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease-out 0.6s both;
+        }
+
+        .contact-info a {
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .contact-info a:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Section Styles */
+        section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            color: var(--text-dark);
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 60px;
+            height: 4px;
+            background-color: var(--primary-color);
+            margin: 1rem auto 0;
+        }
+
+        /* About Section */
+        .about-content {
+            background-color: var(--bg-white);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            line-height: 1.8;
+        }
+
+        /* Research Interests Section */
+        .research-interests {
+            background-color: var(--bg-white);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .research-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .research-area {
+            padding: 1.5rem;
+            background-color: var(--bg-light);
+            border-radius: 8px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .research-area:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .research-area h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .research-area ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .research-area li {
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .research-area li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+        }
+
+        /* Experience Section */
+        .experience-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .experience-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background-color: var(--border-color);
+        }
+
+        .experience-item {
+            position: relative;
+            margin-bottom: 3rem;
+            background-color: var(--bg-white);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .experience-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .experience-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 2rem;
+            width: 12px;
+            height: 12px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+        }
+
+        .experience-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .experience-title {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .company {
+            font-size: 1.1rem;
+            color: var(--text-dark);
+            font-weight: 500;
+        }
+
+        .date {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .experience-description {
+            color: var(--text-dark);
+            line-height: 1.8;
+        }
+
+        .experience-description ul {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .experience-description li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .experience-description li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--secondary-color);
+        }
+
+        /* Research Projects Section */
+        .projects-grid {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .project-card {
+            background-color: var(--bg-white);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .project-header {
+            border-bottom: 2px solid var(--bg-light);
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .project-title {
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .project-acronym {
+            font-weight: bold;
+            color: var(--secondary-color);
+        }
+
+        .project-duration {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .project-partner {
+            font-style: italic;
+            color: var(--text-dark);
+            margin-top: 0.5rem;
+        }
+
+        .project-description {
+            line-height: 1.8;
+            color: var(--text-dark);
+        }
+
+        /* Skills Section */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .skill-category {
+            background-color: var(--bg-white);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .skill-category h3 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+
+        .skill-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .skill-tag {
+            background-color: var(--bg-light);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+        }
+
+        .skill-tag:hover {
+            background-color: var(--primary-color);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* Publications Section */
+        .publications-list {
+            display: grid;
+            gap: 2rem;
+        }
+
+        .publication-item {
+            background-color: var(--bg-white);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .publication-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .publication-title {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .publication-authors {
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+        }
+
+        .publication-venue {
+            font-style: italic;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .publication-link {
+            color: var(--secondary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .publication-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Awards Section */
+        .awards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .award-item {
+            background-color: var(--bg-white);
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .award-item:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .award-title {
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .award-date {
+            color: var(--secondary-color);
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+        }
+
+        .award-description {
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--text-dark);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.2rem;
+            }
+
+            .experience-timeline {
+                padding-left: 1rem;
+            }
+
+            .experience-item::before {
+                left: -1.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+
+        /* Scroll to top button */
+        .scroll-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--primary-color);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+
+        .scroll-top.visible {
+            opacity: 1;
+        }
+
+        .scroll-top:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">DK</div>
+            <ul class="nav-links">
+                <li><a href="#about">About</a></li>
+                <li><a href="#research-interests">Research</a></li>
+                <li><a href="#experience">Experience</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#publications">Publications</a></li>
+                <li><a href="#awards">Awards</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Dimitrios Kafetzis</h1>
+            <p class="subtitle">Electronics & Software Engineer | Systems Architect | Researcher | Team Leader</p>
+            <p class="description">
+                Senior engineer with over 12 years of diverse experience in the tech industry, 
+                currently pursuing a PhD at Athens University of Economics and Business. 
+                Specializing in systems architecture, IoT, AI, and network optimization.
+            </p>
+            <div class="contact-info">
+                <a href="mailto:dimitrioskafetzis@gmail.com">
+                    <span>✉</span> dimitrioskafetzis@gmail.com
+                </a>
+                <a href="tel:+306936753404">
+                    <span>📱</span> +30 6936753404
+                </a>
+                <a href="https://linkedin.com/in/dimitrios-kafetzis" target="_blank">
+                    <span>💼</span> LinkedIn
+                </a>
+                <a href="https://github.com/Dimitrios-Kafetzis" target="_blank">
+                    <span>💻</span> GitHub
+                </a>
+                <a href="https://scholar.google.com/citations?hl=el&user=3RLgkhwAAAAJ" target="_blank">
+                    <span>🎓</span> Google Scholar
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="about">
+        <h2 class="section-title">About Me</h2>
+        <div class="about-content">
+            <p>
+                <strong>Senior engineer with 12+ years of experience</strong> bridging hardware and software domains to create innovative solutions in <strong>IoT, AI, and network optimization</strong>. Currently pursuing a PhD at Athens University of Economics and Business, I combine deep technical expertise with proven leadership in delivering complex systems from concept to production.
+            </p>
+            <div style="margin: 2rem 0; padding: 1.5rem; background-color: var(--bg-light); border-radius: 8px; border-left: 4px solid var(--primary-color);">
+                <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Key Highlights</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                    <div>
+                        <strong style="color: var(--secondary-color);">🎯 Technical Leadership</strong>
+                        <p style="margin-top: 0.5rem;">Led R&D departments and IoT teams, delivering solutions for maritime, military, and gaming industries</p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--secondary-color);">🔬 Research Impact</strong>
+                        <p style="margin-top: 0.5rem;">8+ peer-reviewed publications on AI model partitioning, edge computing, and network optimization</p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--secondary-color);">🏆 Award-Winning Innovation</strong>
+                        <p style="margin-top: 0.5rem;">European Commission Innovation Radar Prize winner and multiple technical achievement awards</p>
+                    </div>
+                    <div>
+                        <strong style="color: var(--secondary-color);">🌐 Cross-Domain Expertise</strong>
+                        <p style="margin-top: 0.5rem;">From embedded systems and PCB design to machine learning and cloud architectures</p>
+                    </div>
+                </div>
+            </div>
+            <p>
+                I excel at the intersection of <strong>theoretical research and practical engineering</strong>, transforming cutting-edge concepts in AI, SDN/SDR, and edge computing into real-world applications. My work spans critical sectors including maritime technology, tactical communications, and autonomous systems, always focusing on solving complex challenges through interdisciplinary innovation.
+            </p>
+        </div>
+    </section>
+
+    <section id="research-interests">
+        <h2 class="section-title">Research Interests</h2>
+        <div class="research-interests">
+            <p style="text-align: center; margin-bottom: 2rem; color: var(--text-light);">
+                My research focuses on cutting-edge technologies at the intersection of AI, networks, and embedded systems
+            </p>
+            <div class="research-grid">
+                <div class="research-area">
+                    <h3>Artificial Intelligence & Machine Learning</h3>
+                    <ul>
+                        <li>Deep Neural Network (DNN) partitioning</li>
+                        <li>Transformer-based model optimization</li>
+                        <li>AI inference on resource-constrained devices</li>
+                        <li>Computer Vision applications</li>
+                        <li>Natural Language Processing (NLP)</li>
+                    </ul>
+                </div>
+                <div class="research-area">
+                    <h3>Network Optimization & Communications</h3>
+                    <ul>
+                        <li>Software-Defined Networking (SDN)</li>
+                        <li>Software-Defined Radio (SDR)</li>
+                        <li>Mobile Ad-hoc Networks (MANETs)</li>
+                        <li>Tactical Networks optimization</li>
+                        <li>6G Resource-constrained networks</li>
+                    </ul>
+                </div>
+                <div class="research-area">
+                    <h3>Edge Computing & IoT</h3>
+                    <ul>
+                        <li>Edge AI and distributed computing</li>
+                        <li>Wireless Sensor Networks (WSN)</li>
+                        <li>IoT protocol optimization</li>
+                        <li>Resource allocation in edge networks</li>
+                        <li>Real-time systems optimization</li>
+                    </ul>
+                </div>
+                <div class="research-area">
+                    <h3>Cybersecurity & Network Forensics</h3>
+                    <ul>
+                        <li>Intrusion Detection Systems (IDS)</li>
+                        <li>Network security in SDN environments</li>
+                        <li>AI-powered security applications</li>
+                        <li>Network forensics methodologies</li>
+                        <li>Security in tactical networks</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="experience">
+        <h2 class="section-title">Work Experience</h2>
+        <div class="experience-timeline">
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">IoT Department Director - Embedded Systems Architect</h3>
+                        <p class="company">DeepSea Technologies - Nabtesco Group, Athens</p>
+                    </div>
+                    <p class="date">June 2023 - Present</p>
+                </div>
+                <div class="experience-description">
+                    <ul>
+                        <li>Lead IoT department architecting embedded systems for next-generation maritime solutions</li>
+                        <li>Design custom Linux OS distributions using Yocto for mission-critical maritime applications</li>
+                        <li>Architect Wireless Sensor Networks with MQTT-SN/ZigBee on Zephyr and AWS FreeRTOS</li>
+                        <li>Ensure compliance with maritime standards (IEC 61162, IEC 62923, IEC 60945, IACS E26/E27)</li>
+                        <li>Manage cross-functional teams and report directly to CTO on strategic initiatives</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Researcher - Lead Research Engineer</h3>
+                        <p class="company">Athens University of Economics and Business - Research Center</p>
+                    </div>
+                    <p class="date">February 2019 - Present</p>
+                </div>
+                <div class="experience-description">
+                    <ul>
+                        <li>Pioneer AI model partitioning techniques for DNN and Transformer models on edge devices</li>
+                        <li>Lead research in Software-Defined Networking (SDN) and Radio (SDR) for tactical networks</li>
+                        <li>Develop optimization algorithms for 6G resource-constrained networks and IoT systems</li>
+                        <li>Published 8+ papers in top-tier conferences (ACM MobiHoc, IEEE Access, EUCNC)</li>
+                        <li>Secure and manage EU/national research grants totaling €2M+ across multiple projects</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Embedded Systems & Electronics Design Engineer</h3>
+                        <p class="company">Freelance - UK, Cyprus (remotely) and Greece</p>
+                    </div>
+                    <p class="date">March 2020 - Present</p>
+                </div>
+                <div class="experience-description">
+                    <ul>
+                        <li>Design high-end PCBs and audio electronics for premium industrial IoT applications</li>
+                        <li>Develop embedded firmware in C/microPython for ST, Microchip, Espressif, and TI platforms</li>
+                        <li>Ensure EMC compliance and optimize power electronics for critical applications</li>
+                        <li>Deliver educational robotics solutions for STEM initiatives</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Software & QA Engineer - Private</h3>
+                        <p class="company">Hellenic Army - Research and IT Corps, Athens</p>
+                    </div>
+                    <p class="date">July 2021 - July 2022</p>
+                </div>
+                <div class="experience-description">
+                    <ul>
+                        <li>Military service at the Hellenic Army IT Support Centre (KEPYES)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">R&D Department Director - Systems Architect</h3>
+                        <p class="company">Plaython Inc., Athens</p>
+                    </div>
+                    <p class="date">June 2017 - January 2019</p>
+                </div>
+                <div class="experience-description">
+                    <ul>
+                        <li>Directed R&D strategy and systems architecture for innovative gaming technology solutions</li>
+                        <li>Led hardware/software co-design initiatives from prototype to production</li>
+                        <li>Managed engineering teams and served as Board of Directors member</li>
+                        <li>Delivered complex embedded systems using C/C++/C# for real-time gaming applications</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Software Engineer</h3>
+                        <p class="company">Software Competitiveness International (SoftCom Int), Athens</p>
+                    </div>
+                    <p class="date">June 2016 - June 2017</p>
+                </div>
+                <div class="experience-description">
+                    <ul>
+                        <li>Software development for the German automotive industry in C/C++ & Python following test-driven development (under NDA)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Technical Consultant & Embedded Systems Engineer</h3>
+                        <p class="company">IMIS / "Athena" Research and Innovation Center, Athens</p>
+                    </div>
+                    <p class="date">September 2014 - February 2016</p>
+                </div>
+                <div class="experience-description">
+                    <p>Member of the project team of DAIAD EU research project (FP7-ICT-2013-11) (http://www.daiad.eu/)</p>
+                    <ul>
+                        <li>Embedded Systems Engineering</li>
+                        <li>Serial Protocols interfaces development</li>
+                        <li>API development in C++ for BLE based communication</li>
+                        <li>Electronics Hardware Design using the Altium Designer</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Project Manager</h3>
+                        <p class="company">Prisma Electronics SA, Athens</p>
+                    </div>
+                    <p class="date">May 2015 - January 2016</p>
+                </div>
+                <div class="experience-description">
+                    <p>Project Management for installation projects on vessels of the LAROS platform (http://www.laros.co.uk/)</p>
+                    <ul>
+                        <li>Preparation and writing of Technical Proposals</li>
+                        <li>Project Planning</li>
+                        <li>Project Monitoring</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Embedded Systems & Software Design Engineer</h3>
+                        <p class="company">Prisma Electronics SA, Athens</p>
+                    </div>
+                    <p class="date">February 2014 - June 2016</p>
+                </div>
+                <div class="experience-description">
+                    <ul>
+                        <li>Architected IoT solutions with focus on reliability engineering and Quality of Service</li>
+                        <li>Developed RTOS and DSP algorithms for industrial IoT on TI microcontrollers</li>
+                        <li>Built enterprise applications using C#/.NET with Oracle/SQL Server integration</li>
+                        <li>Implemented machine learning algorithms for predictive maintenance systems</li>
+                        <li>Led Agile development teams and managed technical documentation</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Electronics Design Engineer</h3>
+                        <p class="company">deSoutter Medical Group – Zethon Ltd, Aston Clinton, UK</p>
+                    </div>
+                    <p class="date">September 2013 - February 2014</p>
+                </div>
+                <div class="experience-description">
+                    <ul>
+                        <li>Designed motor controller for high-speed medical devices (MBU-TDZ project)</li>
+                        <li>Implemented FOC algorithms for 3-phase BLDC motors achieving 80,000+ RPM</li>
+                        <li>Developed MISRA-C compliant firmware and bootloaders for TI C2000 microcontrollers</li>
+                        <li>Created production line programming tools using C#/.NET for quality assurance</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Electronics Design Engineer</h3>
+                        <p class="company">University of Leeds - I3S Ultrasound Group, Leeds, UK</p>
+                    </div>
+                    <p class="date">September 2012 - September 2013</p>
+                </div>
+                <div class="experience-description">
+                    <ul>
+                        <li>Engineered high-speed (960 Mbps) FPGA-based ultrasound array research platform</li>
+                        <li>Designed advanced PCBs with LVDS technology and controlled impedance routing</li>
+                        <li>Verified RTL designs in Verilog for Altera Stratix III/IV FPGAs</li>
+                        <li>Optimized thermal management and EMI control for medical imaging systems</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Embedded Systems Engineer (Internship)</h3>
+                        <p class="company">Prisma Electronics SA, Athens</p>
+                    </div>
+                    <p class="date">June 2012 - September 2012</p>
+                </div>
+                <div class="experience-description">
+                    <p>Member of the project team for the WPSS project of CERN ATLAS.</p>
+                    <ul>
+                        <li>Control and development of subsystems for Wireless Sensor Networks</li>
+                        <li>PCB design using Altium Designer</li>
+                        <li>Undertaking of the design from scratch the implementation and the testing of the Human Fall Detection system of the WPSS project</li>
+                        <li>Contribution to the software development for communications over TCP/IP</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Electronics & Electrical Engineer (Internship)</h3>
+                        <p class="company">Electrophot Hellas SA, Athens</p>
+                    </div>
+                    <p class="date">June 2011 - September 2011</p>
+                </div>
+                <div class="experience-description">
+                    <ul>
+                        <li>Maintenance and fixing of photocopier machines</li>
+                        <li>Functional control and electrical characteristics control of DC, AC and stepper motors</li>
+                        <li>Design and implementation of an embedded system for the quality control of the motors</li>
+                        <li>PV based power supply system design</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <h2 class="section-title">Research Projects</h2>
+        <div class="projects-grid">
+            <div class="project-card">
+                <div class="project-header">
+                    <h3 class="project-title"><span class="project-acronym">TARGET-X</span></h3>
+                    <p class="project-duration">October 2024 - July 2025</p>
+                </div>
+                <p class="project-description">
+                    Trial Platform for 5G/6G Evolution Cross-Industry on Large Scale. Working on Machine Learning approaches for QoE parameters estimation-prediction in autonomous vehicles on-road video streaming networks.
+                </p>
+            </div>
+
+            <div class="project-card">
+                <div class="project-header">
+                    <h3 class="project-title"><span class="project-acronym">SMOTANET</span></h3>
+                    <p class="project-duration">September 2020 - January 2024</p>
+                    <p class="project-partner">In collaboration with Intracom Defence SA</p>
+                </div>
+                <p class="project-description">
+                    Design and Development of Tactical Devices for Software Defined Mobile Ad-hoc Tactical Networks. Focus on creating advanced tactical communication systems integrating SDN and SDR technologies for military applications.
+                </p>
+            </div>
+
+            <div class="project-card">
+                <div class="project-header">
+                    <h3 class="project-title"><span class="project-acronym">LEMONADE</span></h3>
+                    <p class="project-duration">October 2019 - September 2020</p>
+                </div>
+                <p class="project-description">
+                    Analysis and Experimental Study of Mobile Wireless Networks with Delay Tolerance. Research on optimization techniques for delay-tolerant networks in challenging environments.
+                </p>
+            </div>
+
+            <div class="project-card">
+                <div class="project-header">
+                    <h3 class="project-title"><span class="project-acronym">EREVOS</span></h3>
+                    <p class="project-duration">April 2019 - February 2020</p>
+                </div>
+                <p class="project-description">
+                    Aerial Survey of Railways with Drones for Vegetation Management. Development of UAV-based systems using deep learning for automated railway infrastructure monitoring and vegetation management.
+                </p>
+            </div>
+
+            <div class="project-card">
+                <div class="project-header">
+                    <h3 class="project-title"><span class="project-acronym">DAIAD</span></h3>
+                    <p class="project-duration">September 2014 - February 2016</p>
+                    <p class="project-partner">EU FP7-ICT-2013-11 Project</p>
+                </div>
+                <p class="project-description">
+                    Open Water Management platform (http://www.daiad.eu/). Contributed to embedded systems engineering, BLE communication protocols, and hardware design for smart water monitoring devices. Received the 2017 Innovation Radar Prize from the European Commission.
+                </p>
+            </div>
+
+            <div class="project-card">
+                <div class="project-header">
+                    <h3 class="project-title"><span class="project-acronym">LAROS</span></h3>
+                    <p class="project-duration">2015 - 2016</p>
+                    <p class="project-partner">Prisma Electronics SA</p>
+                </div>
+                <p class="project-description">
+                    Maritime platform for vessel monitoring and management (http://www.laros.co.uk/). Project management for installation projects on vessels, including technical proposal preparation and project monitoring. Received the Lloyd's List Greek Shipping Awards 2015 Technical Achievement Award.
+                </p>
+            </div>
+
+            <div class="project-card">
+                <div class="project-header">
+                    <h3 class="project-title"><span class="project-acronym">WPSS</span></h3>
+                    <p class="project-duration">June 2012 - September 2012</p>
+                    <p class="project-partner">CERN ATLAS Project</p>
+                </div>
+                <p class="project-description">
+                    Wireless Personnel Safety System for CERN ATLAS. Developed wireless sensor networks for personnel safety, including design and implementation of a Human Fall Detection system using embedded systems and TCP/IP communications.
+                </p>
+            </div>
+
+            <div class="project-card">
+                <div class="project-header">
+                    <h3 class="project-title"><span class="project-acronym">UARP v2</span></h3>
+                    <p class="project-duration">September 2012 - September 2013</p>
+                    <p class="project-partner">University of Leeds - I3S Ultrasound Group</p>
+                </div>
+                <p class="project-description">
+                    Ultrasound Array Research Platform v2. High-end hardware design for front-end RX & TX devices, including FPGA-based RTL design, high-speed routing (960 Mbps), and LVDS technology implementation.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="skills">
+        <h2 class="section-title">Skills & Expertise</h2>
+        <div class="skills-grid">
+            <div class="skill-category">
+                <h3>Programming Languages</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">C</span>
+                    <span class="skill-tag">C++</span>
+                    <span class="skill-tag">C#</span>
+                    <span class="skill-tag">Obj-C</span>
+                    <span class="skill-tag">Python</span>
+                    <span class="skill-tag">PHP</span>
+                    <span class="skill-tag">JavaScript</span>
+                    <span class="skill-tag">MATLAB</span>
+                    <span class="skill-tag">Java</span>
+                    <span class="skill-tag">Verilog</span>
+                    <span class="skill-tag">VHDL</span>
+                </div>
+            </div>
+
+            <div class="skill-category">
+                <h3>Technical Expertise</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">Systems Architecture</span>
+                    <span class="skill-tag">Embedded Systems</span>
+                    <span class="skill-tag">PCB Design</span>
+                    <span class="skill-tag">Algorithm Optimization</span>
+                    <span class="skill-tag">Machine Learning</span>
+                    <span class="skill-tag">Computer Vision</span>
+                    <span class="skill-tag">Network Engineering</span>
+                </div>
+            </div>
+
+            <div class="skill-category">
+                <h3>Software Development Frameworks & Tools</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">.NET</span>
+                    <span class="skill-tag">Windows Forms</span>
+                    <span class="skill-tag">WPF</span>
+                    <span class="skill-tag">Laravel</span>
+                    <span class="skill-tag">Angular</span>
+                    <span class="skill-tag">TensorFlow</span>
+                    <span class="skill-tag">PyTorch</span>
+                    <span class="skill-tag">OpenCV</span>
+                    <span class="skill-tag">OpenGL</span>
+                    <span class="skill-tag">GNU Radio</span>
+                    <span class="skill-tag">MQTT</span>
+                    <span class="skill-tag">TICK Stack</span>
+                    <span class="skill-tag">MISRA C/C++</span>
+                </div>
+            </div>
+
+            <div class="skill-category">
+                <h3>Cybersecurity & Forensics</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">ELK Stack</span>
+                    <span class="skill-tag">Elasticsearch</span>
+                    <span class="skill-tag">Logstash</span>
+                    <span class="skill-tag">Kibana</span>
+                    <span class="skill-tag">Metasploit</span>
+                    <span class="skill-tag">Wireshark</span>
+                    <span class="skill-tag">Nmap</span>
+                    <span class="skill-tag">SCAPY</span>
+                </div>
+            </div>
+
+            <div class="skill-category">
+                <h3>EDA Tools</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">Altium Designer</span>
+                    <span class="skill-tag">Mentor Graphics PADS</span>
+                    <span class="skill-tag">DxDesigner</span>
+                    <span class="skill-tag">Expedition PCB</span>
+                    <span class="skill-tag">SolidWorks</span>
+                </div>
+            </div>
+
+            <div class="skill-category">
+                <h3>Networking & Protocols</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">SDN</span>
+                    <span class="skill-tag">SDR</span>
+                    <span class="skill-tag">TCP/IP</span>
+                    <span class="skill-tag">UDP</span>
+                    <span class="skill-tag">REST APIs</span>
+                    <span class="skill-tag">Open API</span>
+                    <span class="skill-tag">MQTT</span>
+                    <span class="skill-tag">MQTT-SN</span>
+                    <span class="skill-tag">MANETs</span>
+                    <span class="skill-tag">WSNs</span>
+                    <span class="skill-tag">WiFi (IEEE 802.11)</span>
+                    <span class="skill-tag">ZigBee (IEEE 802.15.4)</span>
+                    <span class="skill-tag">LoRaWAN</span>
+                    <span class="skill-tag">RS-485</span>
+                    <span class="skill-tag">RS-422</span>
+                    <span class="skill-tag">4-20mA</span>
+                    <span class="skill-tag">Modbus TCP/RTU</span>
+                    <span class="skill-tag">Flexray</span>
+                    <span class="skill-tag">CAN bus</span>
+                    <span class="skill-tag">NMEA-0183</span>
+                    <span class="skill-tag">I2C</span>
+                    <span class="skill-tag">I2S</span>
+                    <span class="skill-tag">SPI</span>
+                    <span class="skill-tag">LVDS</span>
+                    <span class="skill-tag">UART</span>
+                    <span class="skill-tag">JTAG</span>
+                    <span class="skill-tag">ISP</span>
+                </div>
+            </div>
+
+            <div class="skill-category">
+                <h3>Development Environments</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">Docker</span>
+                    <span class="skill-tag">Visual Studio</span>
+                    <span class="skill-tag">VS Code</span>
+                    <span class="skill-tag">MPLAB X</span>
+                    <span class="skill-tag">Mbed IDE</span>
+                    <span class="skill-tag">STM32CubeIDE</span>
+                    <span class="skill-tag">Eclipse</span>
+                    <span class="skill-tag">PyCharm</span>
+                    <span class="skill-tag">Jupyter Notebooks</span>
+                    <span class="skill-tag">MATLAB</span>
+                </div>
+            </div>
+
+            <div class="skill-category">
+                <h3>Cloud Platforms</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">Microsoft Azure</span>
+                    <span class="skill-tag">Amazon AWS</span>
+                </div>
+            </div>
+
+            <div class="skill-category">
+                <h3>Operating Systems & RTOS</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">Linux</span>
+                    <span class="skill-tag">Embedded Linux</span>
+                    <span class="skill-tag">SE Linux</span>
+                    <span class="skill-tag">Windows</span>
+                    <span class="skill-tag">MacOS</span>
+                    <span class="skill-tag">Mbed OS</span>
+                    <span class="skill-tag">FreeRTOS</span>
+                    <span class="skill-tag">Zephyr</span>
+                    <span class="skill-tag">Yocto Project</span>
+                    <span class="skill-tag">Open-Embedded</span>
+                    <span class="skill-tag">Android</span>
+                </div>
+            </div>
+
+            <div class="skill-category">
+                <h3>CI/CD & Version Control</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">Yocto Autobuilder</span>
+                    <span class="skill-tag">Jenkins</span>
+                    <span class="skill-tag">Git</span>
+                    <span class="skill-tag">SVN</span>
+                </div>
+            </div>
+
+            <div class="skill-category">
+                <h3>Project Management</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">Microsoft Project</span>
+                    <span class="skill-tag">Jira</span>
+                    <span class="skill-tag">Bitbucket</span>
+                    <span class="skill-tag">Confluence</span>
+                    <span class="skill-tag">Trello</span>
+                    <span class="skill-tag">Agile Methodologies</span>
+                </div>
+            </div>
+
+            <div class="skill-category">
+                <h3>Document Creation</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">LaTeX</span>
+                    <span class="skill-tag">Microsoft Office Suite</span>
+                    <span class="skill-tag">Markdown</span>
+                    <span class="skill-tag">Technical Writing</span>
+                </div>
+            </div>
+
+            <div class="skill-category">
+                <h3>Languages</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">English (Fluent)</span>
+                    <span class="skill-tag">Greek (Native)</span>
+                    <span class="skill-tag">French (Intermediate)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="publications">
+        <h2 class="section-title">Publications</h2>
+        <div class="publications-list">
+            <div class="publication-item">
+                <h3 class="publication-title">Video Quality Monitoring for Remote Autonomous Vehicle Control</h3>
+                <p class="publication-authors">Dimitrios Kafetzis, Nikos Fotiou, Savvas Argyropoulos, Jad Nasreddine, and Iordanis Koutsopoulos</p>
+                <p class="publication-venue">IEEE MeditCom 2025 (July 2025)</p>
+                <a href="https://arxiv.org/pdf/placeholder" class="publication-link" target="_blank">View Paper →</a>
+            </div>
+
+            <div class="publication-item">
+                <h3 class="publication-title">Large Language Model Partitioning for Low-Latency Inference at the Edge</h3>
+                <p class="publication-authors">Dimitrios Kafetzis, Ramin Khalili, and Iordanis Koutsopoulos</p>
+                <p class="publication-venue">IEEE/IFIP WiOpt 2025 (May 2025)</p>
+                <a href="https://arxiv.org/pdf/2505.02533" class="publication-link" target="_blank">View Paper →</a>
+            </div>
+
+            <div class="publication-item">
+                <h3 class="publication-title">An Experimental Platform for AI Model Partitioning on Resource-constrained Devices</h3>
+                <p class="publication-authors">Dimitrios Kafetzis and Iordanis Koutsopoulos</p>
+                <p class="publication-venue">ACM MobiHoc 2024 (October 2024)</p>
+                <a href="#" class="publication-link">DOI: 10.1145/3641512.3690629 →</a>
+            </div>
+
+            <div class="publication-item">
+                <h3 class="publication-title">DNN Partitioning and Inference Task Offloading in 6G Resource-Constrained Networks</h3>
+                <p class="publication-authors">Dimitrios Kafetzis and Iordanis Koutsopoulos</p>
+                <p class="publication-venue">EUCNC & 6G Summit 2024 (June 2024)</p>
+                <a href="#" class="publication-link">DOI: 10.1109/EuCNC/6GSummit60053.2024.10597111 →</a>
+            </div>
+
+            <div class="publication-item">
+                <h3 class="publication-title">Joint Controller Placement and Intrusion Detection System Enablement in Software Defined Mobile Ad Hoc Networks</h3>
+                <p class="publication-authors">Dimitrios Kafetzis and Iordanis Koutsopoulos</p>
+                <p class="publication-venue">European Wireless 2023 (October 2023)</p>
+                <p class="publication-link">Print ISBN: 978-3-8007-6225-5</p>
+            </div>
+
+            <div class="publication-item">
+                <h3 class="publication-title">Revisiting the OLSRv2 Protocol Optimization in SDN-enabled Tactical MANETs</h3>
+                <p class="publication-authors">Ioannis Fourfouris, Merkouris Karaliopoulos, Dimitrios Kafetzis, Georgios Vardoulias, Apostolos Georgiadis, Spyridon Vassilaras, and Iordanis Koutsopoulos</p>
+                <p class="publication-venue">IEEE Military Communications Conference (MILCOM) (November 2023)</p>
+                <a href="#" class="publication-link">DOI: 10.1109/MILCOM58377.2023.10356322 →</a>
+            </div>
+
+            <div class="publication-item">
+                <h3 class="publication-title">Software-Defined Networking Meets Software-Defined Radio in Mobile ad hoc Networks: State of the Art and Future Directions</h3>
+                <p class="publication-authors">Dimitrios Kafetzis, Spyridon Vassilaras, Georgios Vardoulias, and Iordanis Koutsopoulos</p>
+                <p class="publication-venue">IEEE Access (January 2022)</p>
+                <a href="#" class="publication-link">DOI: 10.1109/ACCESS.2022.3144072 →</a>
+            </div>
+
+            <div class="publication-item">
+                <h3 class="publication-title">UAV-assisted Aerial Survey of Railways using Deep Learning</h3>
+                <p class="publication-authors">Dimitrios Kafetzis, Ioannis Fourfouris, Savvas Argyropoulos, and Iordanis Koutsopoulos</p>
+                <p class="publication-venue">IEEE ICUAS 2020 (September 2020)</p>
+                <a href="#" class="publication-link">DOI: 10.1109/ICUAS48674.2020.9213928 →</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="awards">
+        <h2 class="section-title">Honors & Awards</h2>
+        <div class="awards-grid">
+            <div class="award-item">
+                <h3 class="award-title">Innovation Radar Prize</h3>
+                <p class="award-date">November 2017</p>
+                <p class="award-description">
+                    Awarded by European Commission as member of the R&D team for the design of the Amphiro b1 product (DAIAD project).
+                </p>
+            </div>
+
+            <div class="award-item">
+                <h3 class="award-title">Technical Achievement Award</h3>
+                <p class="award-date">December 2015</p>
+                <p class="award-description">
+                    Lloyd's List Greek Shipping Awards. As member of the R&D team of the LAROS project.
+                </p>
+            </div>
+
+            <div class="award-item">
+                <h3 class="award-title">Most Hard-Working Employee</h3>
+                <p class="award-date">December 2015</p>
+                <p class="award-description">
+                    Awarded by Prisma Electronics SA for exceptional dedication and performance.
+                </p>
+            </div>
+
+            <div class="award-item">
+                <h3 class="award-title">Postgraduate Studies Scholarship</h3>
+                <p class="award-date">August 2012</p>
+                <p class="award-description">
+                    Scholarship award for postgraduate studies for the academic period 2012-2013, awarded by University of Leeds, School of Electronics and Electrical Engineering as a merit for outstanding performance during graduate studies.
+                </p>
+            </div>
+
+            <div class="award-item">
+                <h3 class="award-title">CPC Raspberry Pi Hackathon Winner</h3>
+                <p class="award-date">December 2012</p>
+                <p class="award-description">
+                    Awarded by Raspberry Pi foundation for innovative project development.
+                </p>
+            </div>
+
+            <div class="award-item">
+                <h3 class="award-title">Best Embedded Systems Project</h3>
+                <p class="award-date">May 2011</p>
+                <p class="award-description">
+                    One of the best three projects on the Farnell competition in Embedded Systems 2010-2011, awarded by Farnell UK and University of Leeds.
+                </p>
+            </div>
+
+            <div class="award-item">
+                <h3 class="award-title">Best Electronics Design Project Award</h3>
+                <p class="award-date">May 2010</p>
+                <p class="award-description">
+                    Circuit Analysis and Design competition 2009-2010, awarded by University of Leeds, School of Electronics and Electrical Engineering.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="education">
+        <h2 class="section-title">Education</h2>
+        <div class="experience-timeline">
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Doctorate of Philosophy | Artificial Intelligence and Networks</h3>
+                        <p class="company">Athens University of Economics and Business, Department of Informatics</p>
+                    </div>
+                    <p class="date">February 2019 - Present</p>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Master of Science in Engineering | Embedded Systems Engineering</h3>
+                        <p class="company">University of Leeds, School of Electronics and Electrical Engineering</p>
+                    </div>
+                    <p class="date">September 2012 - November 2013</p>
+                </div>
+                <p style="margin-top: 0.5rem; color: var(--text-light);">Grade: Merit</p>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Bachelor of Engineering | Electronics and Nanotechnology</h3>
+                        <p class="company">University of Leeds, School of Electronics and Electrical Engineering</p>
+                    </div>
+                    <p class="date">September 2009 - July 2012</p>
+                </div>
+                <p style="margin-top: 0.5rem; color: var(--text-light);">Grade: First Class with Honors</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="teaching">
+        <h2 class="section-title">Teaching Experience</h2>
+        <div class="experience-timeline">
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Bachelor and Master Theses Supervisor</h3>
+                        <p class="company">Athens University of Economics and Business, Department of Informatics</p>
+                    </div>
+                    <p class="date">Fall 2019 - Present</p>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Teaching Fellow</h3>
+                        <p class="company">Athens University of Economics and Business, Department of Informatics</p>
+                    </div>
+                    <p class="date">Fall 2019 - Present</p>
+                </div>
+                <div class="experience-description">
+                    <p>Graduate Courses:</p>
+                    <ul>
+                        <li>Mathematics</li>
+                        <li>Computer Networks</li>
+                        <li>Programming in C++</li>
+                        <li>Relational Databases (PostgreSQL, PSQL)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Laboratory Supervisor</h3>
+                        <p class="company">University of Leeds, School of Electronics and Electrical Engineering</p>
+                    </div>
+                    <p class="date">Spring 2013</p>
+                </div>
+                <div class="experience-description">
+                    <p>Graduate Course: Embedded Systems Engineering</p>
+                </div>
+            </div>
+
+            <div class="experience-item">
+                <div class="experience-header">
+                    <div>
+                        <h3 class="experience-title">Laboratory Supervisor</h3>
+                        <p class="company">University of Leeds, School of Electronics and Electrical Engineering</p>
+                    </div>
+                    <p class="date">Fall 2012</p>
+                </div>
+                <div class="experience-description">
+                    <p>Graduate Course: Object-Oriented Programming in Obj-C and Java, iOS and Android Applications Development</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="community">
+        <h2 class="section-title">Community Involvement</h2>
+        <div class="about-content">
+            <h3 style="color: var(--primary-color); margin-bottom: 1rem;">Member of Omada Aigaiou</h3>
+            <p class="date" style="margin-bottom: 1rem;">Spring 2015 – Fall 2017 | Aegean Islands, Greece</p>
+            <p>
+                Member as a Volunteer Engineer. The Omada Aigaiou is an NGO, which has been active since 1995 in the small and remote islands of the Aegean Sea, offering, on a purely voluntary basis, medical services, infrastructure upgrading projects, information on current issues and cultural activities.
+            </p>
+        </div>
+    </section>
+
+    <section id="hobbies">
+        <h2 class="section-title">Hobbies & Interests</h2>
+        <div class="skills-grid">
+            <div class="skill-category" style="text-align: center;">
+                <div class="skill-tags" style="justify-content: center;">
+                    <span class="skill-tag">Swimming</span>
+                    <span class="skill-tag">Cinema</span>
+                    <span class="skill-tag">Hiking</span>
+                    <span class="skill-tag">Geopolitics</span>
+                    <span class="skill-tag">History</span>
+                </div>
+            </div>
+        </div>
+    </section>
