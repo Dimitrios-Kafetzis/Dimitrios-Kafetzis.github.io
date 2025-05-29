@@ -657,6 +657,77 @@
             text-decoration: underline;
         }
 
+        /* Publications Section Enhanced Styles */
+        .publication-keywords {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin: 0.5rem 0;
+            line-height: 1.4;
+        }
+        
+        .publication-keywords strong {
+            color: var(--text-dark);
+        }
+        
+        .publication-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .publication-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .pdf-link {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #1976d2;
+        }
+        
+        .pdf-link:hover {
+            background-color: #1976d2;
+            color: white;
+        }
+        
+        .bibtex-link {
+            background-color: #f3e5f5;
+            color: #7b1fa2;
+            border: 1px solid #7b1fa2;
+        }
+        
+        .bibtex-link:hover {
+            background-color: #7b1fa2;
+            color: white;
+        }
+        
+        .arxiv-link, .doi-link {
+            background-color: #e8f5e9;
+            color: #388e3c;
+            border: 1px solid #388e3c;
+        }
+        
+        .arxiv-link:hover, .doi-link:hover {
+            background-color: #388e3c;
+            color: white;
+        }
+        
+        .publication-isbn {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            padding: 0.4rem 0;
+        }
+
         /* Awards Section */
         .awards-grid {
             display: grid;
@@ -1636,56 +1707,142 @@
                 <h3 class="publication-title">Video Quality Monitoring for Remote Autonomous Vehicle Control</h3>
                 <p class="publication-authors">Dimitrios Kafetzis, Nikos Fotiou, Savvas Argyropoulos, Jad Nasreddine, and Iordanis Koutsopoulos</p>
                 <p class="publication-venue">IEEE MeditCom 2025 (July 2025)</p>
-                <a href="https://arxiv.org/pdf/placeholder" class="publication-link" target="_blank">View Paper →</a>
+                <p class="publication-keywords"><strong>Keywords:</strong> Video Quality Assessment, Autonomous Vehicles, Remote Control, Quality of Experience, 5G/6G Networks</p>
+                <div class="publication-actions">
+                    <a href="papers/meditcom2025_video_quality.pdf" class="publication-link pdf-link" target="_blank">
+                        <span>📄</span> PDF
+                    </a>
+                    <a href="bibtex/meditcom2025_video_quality.bib" class="publication-link bibtex-link" download>
+                        <span>📋</span> BibTeX
+                    </a>
+                    <a href="https://arxiv.org/pdf/placeholder" class="publication-link arxiv-link" target="_blank">
+                        <span>🔗</span> arXiv
+                    </a>
+                </div>
             </div>
-
+    
             <div class="publication-item">
                 <h3 class="publication-title">Large Language Model Partitioning for Low-Latency Inference at the Edge</h3>
                 <p class="publication-authors">Dimitrios Kafetzis, Ramin Khalili, and Iordanis Koutsopoulos</p>
                 <p class="publication-venue">IEEE/IFIP WiOpt 2025 (May 2025)</p>
-                <a href="https://arxiv.org/pdf/2505.02533" class="publication-link" target="_blank">View Paper →</a>
+                <p class="publication-keywords"><strong>Keywords:</strong> Large Language Models, Model Partitioning, Edge Computing, Low Latency, Transformer Models</p>
+                <div class="publication-actions">
+                    <a href="papers/wiopt2025_llm_partitioning.pdf" class="publication-link pdf-link" target="_blank">
+                        <span>📄</span> PDF
+                    </a>
+                    <a href="bibtex/wiopt2025_llm_partitioning.bib" class="publication-link bibtex-link" download>
+                        <span>📋</span> BibTeX
+                    </a>
+                    <a href="https://arxiv.org/pdf/2505.02533" class="publication-link arxiv-link" target="_blank">
+                        <span>🔗</span> arXiv
+                    </a>
+                </div>
             </div>
-
+    
             <div class="publication-item">
                 <h3 class="publication-title">An Experimental Platform for AI Model Partitioning on Resource-constrained Devices</h3>
                 <p class="publication-authors">Dimitrios Kafetzis and Iordanis Koutsopoulos</p>
                 <p class="publication-venue">ACM MobiHoc 2024 (October 2024)</p>
-                <a href="#" class="publication-link">DOI: 10.1145/3641512.3690629 →</a>
+                <p class="publication-keywords"><strong>Keywords:</strong> AI Model Partitioning, Resource-Constrained Devices, Edge Computing, Experimental Platform, Mobile Computing</p>
+                <div class="publication-actions">
+                    <a href="papers/mobihoc2024_ai_platform.pdf" class="publication-link pdf-link" target="_blank">
+                        <span>📄</span> PDF
+                    </a>
+                    <a href="bibtex/mobihoc2024_ai_platform.bib" class="publication-link bibtex-link" download>
+                        <span>📋</span> BibTeX
+                    </a>
+                    <a href="https://doi.org/10.1145/3641512.3690629" class="publication-link doi-link" target="_blank">
+                        <span>🔗</span> DOI
+                    </a>
+                </div>
             </div>
-
+    
             <div class="publication-item">
                 <h3 class="publication-title">DNN Partitioning and Inference Task Offloading in 6G Resource-Constrained Networks</h3>
                 <p class="publication-authors">Dimitrios Kafetzis and Iordanis Koutsopoulos</p>
                 <p class="publication-venue">EUCNC & 6G Summit 2024 (June 2024)</p>
-                <a href="#" class="publication-link">DOI: 10.1109/EuCNC/6GSummit60053.2024.10597111 →</a>
+                <p class="publication-keywords"><strong>Keywords:</strong> Deep Neural Networks, Model Partitioning, 6G Networks, Task Offloading, Resource-Constrained Networks</p>
+                <div class="publication-actions">
+                    <a href="papers/eucnc2024_dnn_partitioning.pdf" class="publication-link pdf-link" target="_blank">
+                        <span>📄</span> PDF
+                    </a>
+                    <a href="bibtex/eucnc2024_dnn_partitioning.bib" class="publication-link bibtex-link" download>
+                        <span>📋</span> BibTeX
+                    </a>
+                    <a href="https://doi.org/10.1109/EuCNC/6GSummit60053.2024.10597111" class="publication-link doi-link" target="_blank">
+                        <span>🔗</span> DOI
+                    </a>
+                </div>
             </div>
-
+    
             <div class="publication-item">
                 <h3 class="publication-title">Joint Controller Placement and Intrusion Detection System Enablement in Software Defined Mobile Ad Hoc Networks</h3>
                 <p class="publication-authors">Dimitrios Kafetzis and Iordanis Koutsopoulos</p>
                 <p class="publication-venue">European Wireless 2023 (October 2023)</p>
-                <p class="publication-link">Print ISBN: 978-3-8007-6225-5</p>
+                <p class="publication-keywords"><strong>Keywords:</strong> Software-Defined Networking, Mobile Ad Hoc Networks, Controller Placement, Intrusion Detection Systems, Network Security</p>
+                <div class="publication-actions">
+                    <a href="papers/ew2023_controller_placement.pdf" class="publication-link pdf-link" target="_blank">
+                        <span>📄</span> PDF
+                    </a>
+                    <a href="bibtex/ew2023_controller_placement.bib" class="publication-link bibtex-link" download>
+                        <span>📋</span> BibTeX
+                    </a>
+                    <span class="publication-isbn">ISBN: 978-3-8007-6225-5</span>
+                </div>
             </div>
-
+    
             <div class="publication-item">
                 <h3 class="publication-title">Revisiting the OLSRv2 Protocol Optimization in SDN-enabled Tactical MANETs</h3>
                 <p class="publication-authors">Ioannis Fourfouris, Merkouris Karaliopoulos, Dimitrios Kafetzis, Georgios Vardoulias, Apostolos Georgiadis, Spyridon Vassilaras, and Iordanis Koutsopoulos</p>
                 <p class="publication-venue">IEEE Military Communications Conference (MILCOM) (November 2023)</p>
-                <a href="#" class="publication-link">DOI: 10.1109/MILCOM58377.2023.10356322 →</a>
+                <p class="publication-keywords"><strong>Keywords:</strong> OLSRv2, Software-Defined Networking, Tactical MANETs, Protocol Optimization, Military Communications</p>
+                <div class="publication-actions">
+                    <a href="papers/milcom2023_olsrv2.pdf" class="publication-link pdf-link" target="_blank">
+                        <span>📄</span> PDF
+                    </a>
+                    <a href="bibtex/milcom2023_olsrv2.bib" class="publication-link bibtex-link" download>
+                        <span>📋</span> BibTeX
+                    </a>
+                    <a href="https://doi.org/10.1109/MILCOM58377.2023.10356322" class="publication-link doi-link" target="_blank">
+                        <span>🔗</span> DOI
+                    </a>
+                </div>
             </div>
-
+    
             <div class="publication-item">
                 <h3 class="publication-title">Software-Defined Networking Meets Software-Defined Radio in Mobile ad hoc Networks: State of the Art and Future Directions</h3>
                 <p class="publication-authors">Dimitrios Kafetzis, Spyridon Vassilaras, Georgios Vardoulias, and Iordanis Koutsopoulos</p>
                 <p class="publication-venue">IEEE Access (January 2022)</p>
-                <a href="#" class="publication-link">DOI: 10.1109/ACCESS.2022.3144072 →</a>
+                <p class="publication-keywords"><strong>Keywords:</strong> Software-Defined Networking, Software-Defined Radio, Mobile Ad Hoc Networks, Survey, Future Networks</p>
+                <div class="publication-actions">
+                    <a href="papers/ieee_access2022_sdn_sdr.pdf" class="publication-link pdf-link" target="_blank">
+                        <span>📄</span> PDF
+                    </a>
+                    <a href="bibtex/ieee_access2022_sdn_sdr.bib" class="publication-link bibtex-link" download>
+                        <span>📋</span> BibTeX
+                    </a>
+                    <a href="https://doi.org/10.1109/ACCESS.2022.3144072" class="publication-link doi-link" target="_blank">
+                        <span>🔗</span> DOI
+                    </a>
+                </div>
             </div>
-
+    
             <div class="publication-item">
                 <h3 class="publication-title">UAV-assisted Aerial Survey of Railways using Deep Learning</h3>
                 <p class="publication-authors">Dimitrios Kafetzis, Ioannis Fourfouris, Savvas Argyropoulos, and Iordanis Koutsopoulos</p>
                 <p class="publication-venue">IEEE ICUAS 2020 (September 2020)</p>
-                <a href="#" class="publication-link">DOI: 10.1109/ICUAS48674.2020.9213928 →</a>
+                <p class="publication-keywords"><strong>Keywords:</strong> Unmanned Aerial Vehicles, Railway Inspection, Deep Learning, Computer Vision, Infrastructure Monitoring</p>
+                <div class="publication-actions">
+                    <a href="papers/icuas2020_uav_survey.pdf" class="publication-link pdf-link" target="_blank">
+                        <span>📄</span> PDF
+                    </a>
+                    <a href="bibtex/icuas2020_uav_survey.bib" class="publication-link bibtex-link" download>
+                        <span>📋</span> BibTeX
+                    </a>
+                    <a href="https://doi.org/10.1109/ICUAS48674.2020.9213928" class="publication-link doi-link" target="_blank">
+                        <span>🔗</span> DOI
+                    </a>
+                </div>
             </div>
         </div>
     </section>
