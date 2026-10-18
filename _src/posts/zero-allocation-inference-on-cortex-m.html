@@ -1,0 +1,58 @@
+<h2>The failure mode I wanted to rule out</h2>
+
+<p>A microcontroller running a neural network has a small set of ways to fail badly. One of the worst is a heap that slowly falls apart. You allocate a tensor, free it, allocate a slightly larger one. After a few thousand inferences the heap is fragmented. The next allocation fails even though the total free memory is larger than the request. Nothing in the model changed. The device just stops.</p>
+
+<p>The second failure is quieter. Each malloc and free takes a variable amount of time that depends on the heap state, and the variance shows up directly in your inference latency. If the inference sits inside a control loop with a fixed period, you cannot budget for it. You can only hope.</p>
+
+<p>I wanted an inference library where neither of these things could happen. Not because of a coding rule, but because of the design. That constraint became <a href="https://github.com/Dimitrios-Kafetzis/EdgeNN">EdgeNN</a>: a C11 library for Dense, Conv, LSTM, GRU and Transformer inference on ARM Cortex-M and Cortex-A, with no heap allocation anywhere in the inference path. This article is about the decisions behind it.</p>
+
+<h2>Two arenas and a bump pointer</h2>
+
+<p>All memory in EdgeNN comes from arenas that the application owns. An arena is a buffer, a capacity, an offset and a peak counter. Allocation aligns the offset up (16 bytes by default) and bumps it. It is O(1). It cannot fragment. If the request does not fit, it returns <code>EDGENN_ERR_OUT_OF_MEMORY</code> and leaves the arena untouched.</p>
+
+<pre><code>typedef struct {
+    uint8_t     *base;
+    size_t       capacity;
+    size_t       offset;
+    size_t       peak;
+    uint32_t     alloc_count;
+} edgenn_arena_t;
+
+size_t edgenn_arena_save(const edgenn_arena_t *arena);
+void   edgenn_arena_restore(edgenn_arena_t *arena, size_t state);</code></pre>
+
+<p>At runtime there are two arenas. The weight arena is filled once at model load and never freed. The scratch arena holds activations and operator temporaries. The pattern every operator follows is save, allocate, compute, restore. An LSTM cell saves the scratch offset, allocates its 4H gate buffer, runs the step, and restores. Over a 200-step sequence the scratch usage stays flat. The graph executor does the same thing around every layer, so scratch consumption is bounded by the single most expensive operator, not the sum of all of them.</p>
+
+<p>The arena API also includes a ping-pong manager: two scratch regions that alternate roles as input and output between layers. The consumed input region is reset and becomes the next output. Peak activation memory is then two times the largest layer, instead of the sum of every layer. I should be honest here. The ping-pong buffer is implemented and tested, but the current graph executor uses the simpler save and restore scheme on a single scratch arena. Wiring ping-pong into the executor is on the list.</p>
+
+<p>The peak counter matters more than it looks. You run your model once on the host, read <code>edgenn_arena_peak()</code>, and you know exactly how much SRAM to reserve on the target. No guessing, no padding by a factor of two.</p>
+
+<h2>INT8 first, floats only at load time</h2>
+
+<p>Many Cortex-M parts have no FPU, and the Cortex-M4's optional FPU is single precision only. So I made INT8 the primary path and FP32 the reference path, rather than the reverse.</p>
+
+<p>The scheme is symmetric INT8 for weights, with the zero point fixed at zero. That removes a subtraction from the inner loop. Weights are quantised per output channel for Dense and Conv. Activations are per tensor. Accumulation is INT32, with INT32 biases. The step that usually brings floats back in is requantisation: scaling the INT32 accumulator down to INT8. EdgeNN precomputes a fixed-point multiplier and shift at load time using <code>frexpf</code>, so the runtime does one multiply-high and one shift. On Cortex-M7 that compiles down to SMMUL plus an arithmetic shift.</p>
+
+<p>The convention in the codebase is simple to state: no <code>float</code> in the INT8 inference path. Floats are allowed when the model loads, when scales are converted to multipliers and when lookup tables are built. They are not allowed inside a kernel.</p>
+
+<p>Sigmoid, tanh and GELU are the other place where floats creep in. For INT8 I use 256-entry lookup tables that map every possible input byte to an output byte. Building a table costs 256 float evaluations at load time and 256 bytes of memory. Applying it is one indexed load per element. The error is bounded by the output quantisation step, because the table is exact on the grid.</p>
+
+<p>Two places need more than 8 bits. The LSTM cell state integrates across time steps, so its parameter struct carries separate quantisation parameters for an INT16 cell state. Attention scores go through a softmax, where small differences matter, so the attention params carry INT16 score quantisation too. Both are declared in the headers. Today the RNN and Transformer operators ship as FP32, with INT8 planned.</p>
+
+<h2>A graph runtime, not just kernels</h2>
+
+<p>CMSIS-NN is excellent and I plan to use it as a backend. But it is operator-level only. You assemble the model by hand, you manage every buffer by hand, and you redo that work for every model. TFLite Micro has a runtime, but it is C++, carries roughly 100 KB of interpreter, and does not cover attention.</p>
+
+<p>EdgeNN sits in between. A model is a linear array of layer descriptors, each holding an operator type, a params pointer and indices into a shared tensor table. Dispatch is a <code>switch</code> on the operator enum. There is no registration table and no function-pointer table. Each operator lives in its own translation unit, so with LTO and <code>--gc-sections</code> the linker drops everything your model does not use. The target is under 20 KB of Flash for a DNN-only model and under 50 KB for all 18 operators. Those are targets from the design documents, not measurements yet.</p>
+
+<p>The binary model format follows the same thinking. A 44-byte header, layer records, tensor records, then a 16-byte aligned weight blob. Weight tensors get a pointer straight into the blob. If the model lives in Flash, the weights are never copied to RAM.</p>
+
+<p>Tensors themselves are descriptors, not objects. About 80 bytes, no ownership, no reference counting. The data pointer can reference the arena, Flash or a user buffer. A descriptor carries its full quantisation metadata, which is what makes it possible to cut a model at a layer boundary and hand the intermediate tensor to another device without ambiguity. That matters to me because partitioned inference across devices is the other half of my research.</p>
+
+<h2>What is planned, and what is not done</h2>
+
+<p>Phases 1 to 5 are complete: foundation, DNN operators, RNN operators, Transformer operators and the graph runtime, with 118 unit tests across five suites, run under GCC and Clang with AddressSanitizer and UndefinedBehaviorSanitizer in CI. Phase 6 is optimisation. That means CMSIS-NN backends for Dense, Conv2D, depthwise Conv2D and pooling behind <code>#ifdef</code> guards, Helium/MVE kernels for Cortex-M55, NEON kernels for Cortex-A53 and A72, operator fusion and INT4 weight-only quantisation. Phase 7 is benchmarks on STM32H7 and platform testing.</p>
+
+<p>The honest limits are these. The only HAL today is the generic C fallback. The loader parses graphs, but a full model converter is still to come, so layer parameters are set up by the application. The KV cache struct exists but the attention kernel does not use it yet. Standalone BatchNorm is FP32 only; the INT8 route is to fold it into the preceding convolution. Nothing has been measured on target hardware yet, and I would rather the benchmark tables say "to be measured" than show something I cannot reproduce.</p>
+
+<p>What I can say is what the design guarantees. No malloc. No fragmentation. Bounded scratch. The same input gives the same output, every run. For the systems I work on, that is the property I needed first. Everything else is speed, and speed can be added behind the HAL without touching the contract.</p>

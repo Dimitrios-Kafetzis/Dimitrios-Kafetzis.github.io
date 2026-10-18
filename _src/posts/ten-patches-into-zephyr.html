@@ -1,0 +1,43 @@
+<h2>Why I started</h2>
+
+<p>My own RTOS project, SynapticOS, runs on Zephyr, and it was pinned to Zephyr 3.7. Moving it forward would surface bugs on my board, the NXP FRDM-MCXN947. The right place to fix those is upstream. The board is supported in-tree, down to an NPU sample that CI only builds and never runs on silicon. And Zephyr 4.6, due in April 2027, is the next LTS. A fix that lands now ships for years.</p>
+
+<p>The timing shaped the work. In early October 2026 Zephyr 4.5 was in release candidates, with the hard freeze on 12 October. Between RC1 and the release only bug fixes merge. So I went looking for bugs I could reproduce on my desk, not features I wanted to add. I opened the first four pull requests on 4 October.</p>
+
+<h2>How I picked the first issues</h2>
+
+<p>I wrote down four conditions before I touched any code. The issue is open, and nobody has a PR for it or has said in the last two weeks that they are on it. I can reproduce or verify it here, on the board, on native_sim or in QEMU. The likely fix is small and local. And it can merge in the current phase of the release cycle. Then I ranked by what could merge now and what I could test on hardware that few others have.</p>
+
+<p>The best source turned out to be NXP's own CI engineers. They file failures on the FRDM-MCXN947 and its sibling boards every week. A contributor who can reproduce those on real silicon and send a small tested fix is rare, and those reports welcomed one. The second source was abandoned work. Issue #114976 had a fix in a PR its author had closed. I picked the idea up, added a unit test that fails without the fix, and opened <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121226">#121226</a>.</p>
+
+<p>Most candidates failed the first condition: in two days of scanning I dropped dozens because the reporter already had a PR up. Before coding I wrote a root-cause note, marked each statement verified or inferred, and posted the cause and reproduction on the issue before opening the PR.</p>
+
+<h2>The commit message lesson</h2>
+
+<p>My first PR, <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121251">#121251</a>, made a userspace build fail at configure time when gperf is missing, instead of dying late with "GPERF-NOTFOUND". The build system maintainer asked for a different design the next day: move the lookup to FindTargetTools.cmake, which runs after Kconfig, and mark it REQUIRED when CONFIG_USERSPACE is on. I did that the same day. Then the next review comment said: "A very long commit message of how it used to work. Please just describe in a few sentences what this commit does, and cut all the nonsense." The same comment added that "Fixes #issue" belongs in the PR description, not the commit. I rewrote it in twenty minutes and the PR merged on 8 October, my first, which also unlocked automatic CI for later PRs.</p>
+
+<p>Three days later the same reviewer said the same thing on <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121369">#121369</a>, a one-line sysbuild fix that already had three approvals. I reworded it within half an hour. The reply was "much better", and the PR merged that afternoon. The rule I adopted: the commit body says what the change does and why in a few sentences, plus one line on what was tested and what was not. The history, the root-cause narrative and the test matrix go in the PR description. I rewrote four unopened branches the same way.</p>
+
+<h2>The devicetree lesson</h2>
+
+<p><a href="https://github.com/zephyrproject-rtos/zephyr/pull/121224">#121224</a> fixes a 4.5 regression where MCUboot could not find its slot on the FRDM-MCXN947. A refactor had moved a secure-alias <code>ranges</code> from the flash controller to the flash node, and a node's <code>ranges</code> only translates its children, so every partition landed at an address 0x10000000 too large. My fix moved the controller under <code>/soc</code>, as a sibling SoC had done, and NXP's test engineer confirmed it on their board. Then the reviewer NXP pointed to as the expert on mapped partitions requested changes: "missing ranges" on one node, and an empty <code>ranges;</code> that was "not valid, use the proper ranges with values". After the second version the reviewer found the secure and non-secure files "very confusing", and that the controller's <code>ranges</code> must also cover the UID node. An NXP maintainer sketched one <code>ranges</code> entry per child. The first reviewer answered "that'll work". I pushed a third version on 16 October.</p>
+
+<p>For each version I checked that the generated devicetree was identical on all fifteen MCXN targets and re-ran the MCUboot, flash and hwinfo tests on the board. The code had worked since version one. What changed was how clearly the devicetree said what it meant. When the two reviewers pulled in different directions, I tried the alternative layout, posted a table of the resulting addresses, and offered to rework. As I write this it has one approval and waits for a re-review.</p>
+
+<h2>The scope lesson</h2>
+
+<p><a href="https://github.com/zephyrproject-rtos/zephyr/pull/121225">#121225</a> started as a few lines in three board files. The USB host driver hard-faulted on MCX N boards because the clock setup only ran for the device driver. A reviewer asked me to add the host_uvc sample for the board, so I did, and another contributor ran it with a camera. Then a Nordic reviewer asked whether overriding <code>compatible</code> on the <code>usb1</code> node was right, and it was not. I added a separate disabled <code>usbh1</code> node the way the RT7xx SoCs do. Then the USB maintainer wrote "No board/platform specific overlays" on the sample files. I dropped the sample commit entirely and put the host label in the board devicetree. The final version is smaller than the second one.</p>
+
+<p><a href="https://github.com/zephyrproject-rtos/zephyr/pull/121250">#121250</a> went the same way. I had taught a logging guard in the CDC ACM class about one more chosen node. The USB maintainer answered that chasing chosen nodes from a class driver "does not scale" and the guard should go. I proposed removing it and demoting the per-transfer messages to debug level so the old recursion cannot return, and when no answer came in ten days I did that. The fix the maintainer wants is usually smaller than the one you drafted.</p>
+
+<h2>Habits that stuck</h2>
+
+<p>Every PR body I write now has a Testing section with the exact target, what passed, and a line that starts with "Not tested". That line is what let <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121835">#121835</a> merge. It fixes NVS on Renesas RA boards, which I do not own. I posted the diff on the issue first, the reporter confirmed it on an EK-RA4M2, and the PR cited that run and said plainly that nothing ran on RA hardware here. Four approvals in three days.</p>
+
+<p>I verify other people's PRs on my board. Six fixes I had ready were overtaken by someone else's PR. When I could, I tested theirs on the FRDM-MCXN947 and posted the result instead. <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121728">#121728</a> came from the same CI stream: a UART test that disabled RX before the last byte had looped back.</p>
+
+<p>I answer reviewers within hours and nudge once after seven days, then stop. The nudge on #121226 got the issue reopened after a stale bot closed it under the open PR.</p>
+
+<p>I used Claude Code for the analysis, the builds and the drafts. Zephyr's policy on that is explicit and workable: one <code>Assisted-by</code> trailer per commit, no co-author trailers, and the human reviews, tests, signs the DCO and posts. I approve every commit and every comment before it goes out under my name.</p>
+
+<p>The queue is not under my control; the work is. A two-line defconfig fix, <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121370">#121370</a>, waited eight days for a second approval and then merged. A three-line fix for OpenTitan, <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121602">#121602</a>, has had no review in ten days. Ten PRs in eight days, five merged within ten, and the merged ones add twenty-four lines between them. Small is fine. Tested and honest is what merges.</p>

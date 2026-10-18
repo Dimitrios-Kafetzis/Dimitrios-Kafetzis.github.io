@@ -1,0 +1,165 @@
+<section class="page-title wrap">
+  <p class="eyebrow">Projects</p>
+  <h1>Open-source systems</h1>
+  <p>Operating systems, inference runtimes, simulators and tools, most of them born from a research question or a problem at work. Star counts are live from GitHub.</p>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="filters" id="filters" role="group" aria-label="Filter projects">
+      <button type="button" data-filter="all" aria-pressed="true">All</button>
+      <button type="button" data-filter="edge" aria-pressed="false">Edge AI &amp; embedded</button>
+      <button type="button" data-filter="inference" aria-pressed="false">Distributed inference</button>
+      <button type="button" data-filter="networks" aria-pressed="false">Networks &amp; security</button>
+      <button type="button" data-filter="robotics" aria-pressed="false">Robotics &amp; maritime</button>
+      <button type="button" data-filter="tools" aria-pressed="false">Tools</button>
+      <button type="button" data-filter="oss" aria-pressed="false">Upstream</button>
+      <button type="button" data-filter="early" aria-pressed="false">Early work</button>
+    </div>
+
+    <div class="cards" id="project-grid">
+
+      <article class="card" data-cat="edge">
+        <div class="top"><span class="cat">Edge AI &middot; RTOS</span><span class="stars" data-repo="SynapticOS" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/SynapticOS">SynapticOS</a></h3>
+        <p>AI-native operating system for Cortex-M33 microcontrollers with on-die NPUs, built on Zephyr for the NXP FRDM-MCXN947. Inference is the primary workload: tensor-aware memory arena, NPU and DSP abstraction, model store with OTA, dual-core inference offload.</p>
+        <ul class="tags"><li>C</li><li>Zephyr</li><li>Cortex-M33</li><li>eIQ Neutron</li></ul>
+        <div class="links"><a href="https://arxiv.org/abs/2607.12606">Paper</a><a href="https://synapticos.io/">Site</a></div>
+      </article>
+
+      <article class="card" data-cat="edge">
+        <div class="top"><span class="cat">Edge AI &middot; Library</span><span class="stars" data-repo="EdgeNN" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/EdgeNN">EdgeNN</a></h3>
+        <p>Zero-allocation C11 library for neural network inference on ARM Cortex-M and Cortex-A. Eighteen operators across Dense, Conv, LSTM, GRU and Transformer layers, INT8 with INT32 accumulation, a deterministic graph runtime and a sub-50 KB flash target.</p>
+        <ul class="tags"><li>C11</li><li>ARM</li><li>INT8</li><li>STM32</li></ul>
+      </article>
+
+      <article class="card" data-cat="edge">
+        <div class="top"><span class="cat">Edge AI &middot; Orchestration</span><span class="stars" data-repo="EdgeOrchestratorAI" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/EdgeOrchestratorAI">EdgeOrchestrator</a></h3>
+        <p>Distributed, adaptive resource orchestrator for AI workloads on clusters of embedded Linux nodes. Real-time resource monitoring from procfs and sysfs, peer discovery over UDP, three scheduling modes, thread and memory pools.</p>
+        <ul class="tags"><li>C++20</li><li>Raspberry Pi</li><li>Linux</li></ul>
+      </article>
+
+      <article class="card" data-cat="edge">
+        <div class="top"><span class="cat">Edge AI &middot; Runtime</span><span class="stars" data-repo="edge-inference-rt" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/edge-inference-rt">edge-inference-rt</a></h3>
+        <p>Memory-aware runtime for partitioned Transformer inference on devices with a few gigabytes of RAM. Type-state inference engine, RAII buffer guards, sequential, greedy and speculative partition planners, resource monitor.</p>
+        <ul class="tags"><li>Rust</li><li>Raspberry Pi 4</li><li>async</li></ul>
+      </article>
+
+      <article class="card" data-cat="edge">
+        <div class="top"><span class="cat">Sensor fusion</span><span class="stars" data-repo="axon" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/axon">axon</a></h3>
+        <p>Header-only C++23 state-estimation framework built for vessel navigation. EKF, UKF and complementary filters behind a single concept, Mahalanobis outlier gating, compile-time sensor composition, 268 tests under strict warnings.</p>
+        <ul class="tags"><li>C++23</li><li>EKF / UKF</li><li>CMake</li></ul>
+      </article>
+
+      <article class="card" data-cat="inference">
+        <div class="top"><span class="cat">Distributed LLM inference</span><span class="stars" data-repo="HeadSplit" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/HeadSplit">HeadSplit</a></h3>
+        <p>Reference implementation of the SPAWC 2026 paper. Each layer's attention heads are scheduled across devices so attention runs in parallel everywhere, and a speculative intermediate output is forwarded before the FFN completes. PyTorch RPC over WiFi on Raspberry Pi clusters.</p>
+        <ul class="tags"><li>PyTorch</li><li>Llama</li><li>GQA</li><li>Raspberry Pi</li></ul>
+      </article>
+
+      <article class="card" data-cat="inference">
+        <div class="top"><span class="cat">Simulation</span><span class="stars" data-repo="Distributed-Transformer-Inference-Simulator" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/Distributed-Transformer-Inference-Simulator">Distributed Transformer Inference Simulator</a></h3>
+        <p>Discrete-event simulator for resource-aware decoder-only Transformer inference across heterogeneous edge clusters. Models devices, attention heads, projections and FFNs, growing KV caches, and compares EdgeShard, Galaxy and the resource-aware algorithm from the WiOpt 2025 paper.</p>
+        <ul class="tags"><li>Python</li><li>Discrete-event</li></ul>
+        <div class="links"><a href="https://arxiv.org/abs/2505.02533">Paper</a></div>
+      </article>
+
+      <article class="card" data-cat="inference">
+        <div class="top"><span class="cat">Testbed</span><span class="stars" data-repo="DNN-Partitioning-and-Offloading-Testbed" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/DNN-Partitioning-and-Offloading-Testbed">DNN Partitioning and Offloading Testbed</a></h3>
+        <p>Raspberry Pi testbed for layer-level DNN partitioning across a WiFi network. Greedy, simulated annealing and genetic optimisers, per-layer latency and power profiling with INA260 sensors, latency injection and a Flask dashboard. Demonstrated at ACM MobiHoc 2024.</p>
+        <ul class="tags"><li>TensorFlow</li><li>Raspberry Pi</li><li>Flask</li></ul>
+        <div class="links"><a href="https://doi.org/10.1145/3641512.3690629">Demo paper</a></div>
+      </article>
+
+      <article class="card" data-cat="inference">
+        <div class="top"><span class="cat">Forecasting</span><span class="stars" data-repo="Time-series_Forecasting_NN-models_for_Video_QoE_Prediction" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/Time-series_Forecasting_NN-models_for_Video_QoE_Prediction">Video QoE Forecasting</a></h3>
+        <p>Linear, LSTM, GRU and Transformer forecasters that predict video quality of experience from network metrics, with dataset generators, hyperparameter tuning and an inference middleware. Built for the TARGET-X tele-operation work.</p>
+        <ul class="tags"><li>TensorFlow</li><li>Keras</li><li>Time series</li></ul>
+      </article>
+
+      <article class="card" data-cat="networks">
+        <div class="top"><span class="cat">SDN security</span><span class="stars" data-repo="RyuSDN-Snort-Reactive-Firewall" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/RyuSDN-Snort-Reactive-Firewall">Ryu SDN + Snort reactive firewall</a></h3>
+        <p>Ryu controller application that mirrors traffic to Snort, blacklists source and destination pairs on alerts, and installs high-priority drop rules on the OpenFlow switch.</p>
+        <ul class="tags"><li>Ryu</li><li>Snort</li><li>OpenFlow</li><li>Python</li></ul>
+      </article>
+
+      <article class="card" data-cat="networks">
+        <div class="top"><span class="cat">SDN &middot; MANET</span><span class="stars" data-repo="SDN-MANET-reactive-firewall-simulators" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/SDN-MANET-reactive-firewall-simulators">SDN-MANET reactive firewall simulators</a></h3>
+        <p>Simulators for reactive firewalling in software-defined mobile ad hoc networks, from the SMOTANET cybersecurity work package.</p>
+        <ul class="tags"><li>Python</li><li>MANET</li></ul>
+      </article>
+
+      <article class="card" data-cat="networks">
+        <div class="top"><span class="cat">Intrusion detection</span><span class="stars" data-repo="RNN-Transformer-DDoS-Detection-Comparison" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/RNN-Transformer-DDoS-Detection-Comparison">RNN vs Transformer DDoS detection</a></h3>
+        <p>Systematic comparison of threshold, linear, DNN, LSTM, GRU and Transformer detectors for transport-layer DDoS on IoT and 5G gateways, measured on accuracy, latency, memory footprint and early-warning lead time.</p>
+        <ul class="tags"><li>TensorFlow</li><li>Scapy</li><li>PCAP</li></ul>
+      </article>
+
+      <article class="card" data-cat="robotics">
+        <div class="top"><span class="cat">Robotics</span><span class="stars" data-repo="Fieldproof" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/Fieldproof">Fieldproof</a></h3>
+        <p>Run the real stack, prove it before the field. Ground, aerial and surface robots run their unmodified ROS 2 (and bridged ROS 1) codebases in isolated containers against Gazebo, orchestrated by a scenario engine and observed from a browser-based 3D cockpit.</p>
+        <ul class="tags"><li>ROS 2</li><li>Gazebo</li><li>PX4 / ArduPilot</li><li>Docker</li></ul>
+        <div class="links"><a href="https://dimitrios-kafetzis.github.io/Fieldproof/">Docs</a></div>
+      </article>
+
+      <article class="card" data-cat="robotics">
+        <div class="top"><span class="cat">Maritime</span><span class="stars" data-repo="NMEA_Simulator_X" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/NMEA_Simulator_X">NMEA Simulator X</a></h3>
+        <p>Free NMEA 0183 and Signal K data-stream simulator for Windows, macOS and Linux. Simulates a vessel under way with GNSS, heading, depth, wind, autopilot, AIS and propulsion sentences over serial, TCP, UDP and WebSocket, with a headless mode for CI.</p>
+        <ul class="tags"><li>C++20</li><li>Qt 6</li><li>IEC 61162</li></ul>
+        <div class="links"><a href="https://dimitrios-kafetzis.github.io/NMEA_Simulator_X/">Docs</a></div>
+      </article>
+
+      <article class="card" data-cat="tools">
+        <div class="top"><span class="cat">Desktop</span><span class="stars" data-repo="Deucalion" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/Deucalion">Deucalion</a></h3>
+        <p>Back up an Ubuntu computer to an external drive and rebuild it on new hardware or a new release: files, apps, settings and system configuration, with LUKS and VeraCrypt support and a GTK4 interface.</p>
+        <ul class="tags"><li>Python</li><li>GTK4 / libadwaita</li><li>Ubuntu</li></ul>
+        <div class="links"><a href="https://dimitrios-kafetzis.github.io/Deucalion/">Docs</a></div>
+      </article>
+
+      <article class="card" data-cat="tools">
+        <div class="top"><span class="cat">Decision support</span><span class="stars" data-repo="CriterraNatureCoolingTool" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/CriterraNatureCoolingTool">Nature for Cooling</a></h3>
+        <p>Screening-level decision support for nature-based urban cooling, developed for Criterra. Scores heat priority, cooling potential, cost and equity for 121 NbS typologies, with map-based site input and exportable comparison reports.</p>
+        <ul class="tags"><li>FastAPI</li><li>React</li><li>TypeScript</li></ul>
+        <div class="links"><a href="https://dimitrios-kafetzis.github.io/CriterraNatureCoolingTool/">Docs</a></div>
+      </article>
+
+      <article class="card" data-cat="oss">
+        <div class="top"><span class="cat">Upstream contributions</span></div>
+        <h3><a href="https://github.com/zephyrproject-rtos/zephyr/pulls?q=is%3Apr+author%3ADimitrios-Kafetzis">Zephyr RTOS</a></h3>
+        <p>Patches to the Zephyr project: CMake and sysbuild fixes, NXP MCXN and MCXA board and devicetree support, the Renesas RA flash driver, USB CDC ACM logging, cbprintf bounds, UART async test stability and the OpenTitan PLIC.</p>
+        <ul class="tags"><li>C</li><li>CMake</li><li>Devicetree</li><li>NXP</li><li>RISC-V</li></ul>
+        <div class="links"><a href="https://github.com/zephyrproject-rtos/zephyr/pulls?q=is%3Apr+author%3ADimitrios-Kafetzis+is%3Amerged">Merged PRs</a><a href="https://github.com/zephyrproject-rtos/zephyr/pulls?q=is%3Apr+author%3ADimitrios-Kafetzis+is%3Aopen">Open PRs</a></div>
+      </article>
+
+      <article class="card" data-cat="early">
+        <div class="top"><span class="cat">2013</span><span class="stars" data-repo="SnakeGame" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/SnakeGame">Snake on Stellaris</a></h3>
+        <p>Snake written in C for the TI Cortex-M3 Stellaris evaluation board. The first repository on this account.</p>
+        <ul class="tags"><li>C</li><li>Cortex-M3</li></ul>
+      </article>
+
+      <article class="card" data-cat="early">
+        <div class="top"><span class="cat">2013</span><span class="stars" data-repo="SlotDeckGameforIphone" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/SlotDeckGameforIphone">Slot Deck for iPhone</a></h3>
+        <p>The classic slot deck game in Objective-C on Cocoa.</p>
+        <ul class="tags"><li>Objective-C</li><li>iOS</li></ul>
+      </article>
+
+    </div>
+  </div>
+</section>

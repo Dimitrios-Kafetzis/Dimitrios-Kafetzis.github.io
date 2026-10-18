@@ -1,0 +1,296 @@
+<section class="page-title wrap">
+  <p class="eyebrow">Publications</p>
+  <h1>Papers and preprints</h1>
+  <p>Partitioning neural networks and LLMs for the edge, operating systems for NPU-equipped microcontrollers, and software-defined tactical networks. Most of the work is with Prof. Iordanis Koutsopoulos at AUEB.</p>
+  <div class="metrics num">
+    <span><b>12</b> publications</span>
+    <span><b>11</b> as first author</span>
+    <span><b>200</b> citations</span>
+    <span><b>5</b> h-index</span>
+    <span><b>4</b> i10-index</span>
+    <span class="muted">Google Scholar, October 2026</span>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+
+    <div class="pub-year">
+      <div class="year">2026</div>
+      <div class="pub-list">
+
+        <article class="pub">
+          <div class="venue"><span class="chip">IEEE SPAWC 2026</span><span class="chip plain">Workshop paper</span></div>
+          <h3>HeadSplit: Attention Head Partitioning and Inter-Layer Speculation for Distributed Inference at the Edge</h3>
+          <p class="authors"><b>Dimitrios Kafetzis</b>, Iordanis Koutsopoulos</p>
+          <p class="summary">A small LLM still exceeds one edge device's memory, and layer-wise splits leave all but one device idle at any moment. HeadSplit schedules each layer's attention heads across devices so attention runs in parallel everywhere, and forwards a speculative intermediate output to the next layer before the FFN finishes, filling the idle interval it creates.</p>
+          <div class="links">
+            <a href="https://github.com/Dimitrios-Kafetzis/HeadSplit">Code</a>
+            <details><summary>BibTeX</summary><pre>@inproceedings{Kafetzis2026HeadSplit,
+  author    = {Dimitrios Kafetzis and Iordanis Koutsopoulos},
+  title     = {HeadSplit: Attention Head Partitioning and Inter-Layer Speculation for Distributed Inference at the Edge},
+  booktitle = {IEEE International Workshop on Signal Processing and Artificial Intelligence for Wireless Communications (SPAWC)},
+  year      = {2026},
+  publisher = {IEEE}
+}</pre></details>
+          </div>
+        </article>
+
+        <article class="pub">
+          <div class="venue"><span class="chip">arXiv</span><span class="chip plain">Preprint</span></div>
+          <h3>SynapticOS: An Inference-First Runtime Architecture for Neural Processing Units on Resource-Constrained Microcontrollers</h3>
+          <p class="authors"><b>Dimitrios Kafetzis</b></p>
+          <p class="summary">Production combinations of Zephyr or FreeRTOS with TensorFlow Lite Micro treat inference as an application library, leaving memory fragmentation, accelerator-state hygiene and model-lifecycle guards to the application developer. This paper presents the Phase 1 architecture of SynapticOS, which makes them operating-system concerns.</p>
+          <div class="links">
+            <a href="https://arxiv.org/abs/2607.12606">arXiv 2607.12606</a>
+            <a href="https://github.com/Dimitrios-Kafetzis/SynapticOS">Code</a>
+            <details><summary>BibTeX</summary><pre>@misc{Kafetzis2026SynapticOS,
+  author        = {Dimitrios Kafetzis},
+  title         = {SynapticOS: An Inference-First Runtime Architecture for Neural Processing Units on Resource-Constrained Microcontrollers},
+  year          = {2026},
+  eprint        = {2607.12606},
+  archivePrefix = {arXiv}
+}</pre></details>
+          </div>
+        </article>
+
+        <article class="pub">
+          <div class="venue"><span class="chip">arXiv</span><span class="chip plain">Preprint</span></div>
+          <h3>Inference Pipelines as Operating-System Objects: Priority Scheduling and Constant-Footprint Streaming for Microcontroller Neural Inference</h3>
+          <p class="authors"><b>Dimitrios Kafetzis</b></p>
+          <p class="summary">Pre-processing, accelerator invocation and post-processing are usually re-implemented per project around a library call. The Phase 2 inference engine of SynapticOS makes the pipeline an OS object with priority scheduling and streaming at a constant memory footprint.</p>
+          <div class="links">
+            <a href="https://arxiv.org/abs/2607.12614">arXiv 2607.12614</a>
+            <a href="https://github.com/Dimitrios-Kafetzis/SynapticOS">Code</a>
+            <details><summary>BibTeX</summary><pre>@misc{Kafetzis2026Pipelines,
+  author        = {Dimitrios Kafetzis},
+  title         = {Inference Pipelines as Operating-System Objects: Priority Scheduling and Constant-Footprint Streaming for Microcontroller Neural Inference},
+  year          = {2026},
+  eprint        = {2607.12614},
+  archivePrefix = {arXiv}
+}</pre></details>
+          </div>
+        </article>
+
+        <article class="pub">
+          <div class="venue"><span class="chip">arXiv</span><span class="chip plain">Preprint</span></div>
+          <h3>Cross-Core Inference Offload as an Operating-System Service on Dual-Core Microcontrollers</h3>
+          <p class="authors"><b>Dimitrios Kafetzis</b></p>
+          <p class="summary">On NXP's MCXN947 the second Cortex-M33 core has no FPU, DSP extension, TrustZone or MPU. The Phase 3 dual-core architecture of SynapticOS treats that asymmetry as a design input: the AI runtime lives on the capable core, and the application core reaches inference only through a message-based OS service.</p>
+          <div class="links">
+            <a href="https://arxiv.org/abs/2607.12620">arXiv 2607.12620</a>
+            <a href="https://github.com/Dimitrios-Kafetzis/SynapticOS">Code</a>
+            <details><summary>BibTeX</summary><pre>@misc{Kafetzis2026CrossCore,
+  author        = {Dimitrios Kafetzis},
+  title         = {Cross-Core Inference Offload as an Operating-System Service on Dual-Core Microcontrollers},
+  year          = {2026},
+  eprint        = {2607.12620},
+  archivePrefix = {arXiv}
+}</pre></details>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <div class="pub-year">
+      <div class="year">2025</div>
+      <div class="pub-list">
+
+        <article class="pub">
+          <div class="venue"><span class="chip">IEEE MeditCom 2025</span></div>
+          <h3>Video Quality Monitoring for Remote Autonomous Vehicle Control</h3>
+          <p class="authors"><b>Dimitrios Kafetzis</b>, Nikos Fotiou, Savvas Argyropoulos, Jad Nasreddine, Iordanis Koutsopoulos</p>
+          <p class="summary">A blueprint for an integrated video-quality monitoring system for remote autonomous vehicle operation over 4G/5G: onboard data collection, video capture and compression, streaming to edge servers, AI model deployment and proactive decisions on predicted quality. Twenty LSTM, GRU and Transformer variants are benchmarked against DNN and linear baselines on a hybrid field-trial and synthetic dataset, with onboard and edge inference compared.</p>
+          <div class="links">
+            <a href="meditcom2025_video_quality.pdf">PDF</a>
+            <details><summary>BibTeX</summary><pre>@inproceedings{Kafetzis2025MeditCom,
+  author    = {Dimitrios Kafetzis and Nikos Fotiou and Savvas Argyropoulos and Jad Nasreddine and Iordanis Koutsopoulos},
+  title     = {Video Quality Monitoring for Remote Autonomous Vehicle Control},
+  booktitle = {2025 IEEE International Mediterranean Conference on Communications and Networking (MeditCom)},
+  year      = {2025},
+  publisher = {IEEE}
+}</pre></details>
+          </div>
+        </article>
+
+        <article class="pub">
+          <div class="venue"><span class="chip">IEEE/IFIP WiOpt 2025</span></div>
+          <h3>Large Language Model Partitioning for Low-Latency Inference at the Edge</h3>
+          <p class="authors"><b>Dimitrios Kafetzis</b>, Ramin Khalili, Iordanis Koutsopoulos</p>
+          <p class="summary">Decoder-only LLMs generate one token at a time while their key-value caches grow. The paper places attention heads, projections and FFN blocks across edge devices and re-plans as the cache expands, minimising per-token latency under each device's memory limit.</p>
+          <div class="links">
+            <a href="https://arxiv.org/abs/2505.02533">arXiv 2505.02533</a>
+            <a href="LLM_Partitioning_Edge_WiOpt_2025.pdf">PDF</a>
+            <a href="https://github.com/Dimitrios-Kafetzis/Distributed-Transformer-Inference-Simulator">Code</a>
+            <details><summary>BibTeX</summary><pre>@inproceedings{Kafetzis2025WiOpt,
+  author    = {Dimitrios Kafetzis and Ramin Khalili and Iordanis Koutsopoulos},
+  title     = {Large Language Model Partitioning for Low-Latency Inference at the Edge},
+  booktitle = {Proceedings of the 23rd International Symposium on Modeling and Optimization in Mobile, Ad Hoc, and Wireless Networks (WiOpt)},
+  year      = {2025},
+  publisher = {IEEE}
+}</pre></details>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <div class="pub-year">
+      <div class="year">2024</div>
+      <div class="pub-list">
+
+        <article class="pub">
+          <div class="venue"><span class="chip">ACM MobiHoc 2024</span><span class="chip plain">Demo</span></div>
+          <h3>An Experimental Platform for AI Model Partitioning on Resource-constrained Devices</h3>
+          <p class="authors"><b>Dimitrios Kafetzis</b>, Iordanis Koutsopoulos</p>
+          <p class="summary">A WiFi network of Raspberry Pi 4 devices for partitioned inference experiments, from simple and deep neural networks to Transformer architectures, measuring performance and resource usage per device.</p>
+          <div class="links">
+            <a href="https://doi.org/10.1145/3641512.3690629">DOI</a>
+            <a href="ACM_Mobihoc_Demo_2024.pdf">PDF</a>
+            <a href="https://github.com/Dimitrios-Kafetzis/DNN-Partitioning-and-Offloading-Testbed">Code</a>
+            <details><summary>BibTeX</summary><pre>@inproceedings{Kafetzis2024MobiHocDemo,
+  author    = {Kafetzis, Dimitrios and Koutsopoulos, Iordanis},
+  title     = {Demo: An Experimental Platform for AI Model Partitioning on Resource-constrained Devices},
+  booktitle = {Proceedings of the Twenty-Fifth International Symposium on Theory, Algorithmic Foundations, and Protocol Design for Mobile Networks and Mobile Computing (MobiHoc '24)},
+  year      = {2024},
+  pages     = {375--376},
+  publisher = {Association for Computing Machinery},
+  address   = {New York, NY, USA},
+  doi       = {10.1145/3641512.3690629}
+}</pre></details>
+          </div>
+        </article>
+
+        <article class="pub">
+          <div class="venue"><span class="chip">EuCNC &amp; 6G Summit 2024</span></div>
+          <h3>DNN Partitioning and Inference Task Offloading in 6G Resource-Constrained Networks</h3>
+          <p class="authors"><b>Dimitrios Kafetzis</b>, Iordanis Koutsopoulos</p>
+          <p class="summary">Each resource-constrained device runs the first layers of its DNN locally and offloads the rest to a base station, where the tasks of different devices couple through scheduling. The paper formulates partitioning for minimum total delay and for fair, balanced delays across devices, and proposes a greedy heuristic for each.</p>
+          <div class="links">
+            <a href="https://doi.org/10.1109/EuCNC/6GSummit60053.2024.10597111">DOI</a>
+            <a href="DNN_partitioning_6G_EUCNC_2024.pdf">PDF</a>
+            <details><summary>BibTeX</summary><pre>@inproceedings{Kafetzis2024EuCNC,
+  author    = {Kafetzis, Dimitrios and Koutsopoulos, Iordanis},
+  title     = {DNN Partitioning and Inference Task Offloading in 6G Resource-Constrained Networks},
+  booktitle = {2024 Joint European Conference on Networks and Communications \&amp; 6G Summit (EuCNC/6G Summit)},
+  year      = {2024},
+  pages     = {753--758},
+  doi       = {10.1109/EuCNC/6GSummit60053.2024.10597111}
+}</pre></details>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <div class="pub-year">
+      <div class="year">2023</div>
+      <div class="pub-list">
+
+        <article class="pub">
+          <div class="venue"><span class="chip">IEEE MILCOM 2023</span></div>
+          <h3>Revisiting the OLSRv2 Protocol Optimization in SDN-enabled Tactical MANETs</h3>
+          <p class="authors">Ioannis Fourfouris, Merkouris Karaliopoulos, <b>Dimitrios Kafetzis</b>, Georgios Vardoulias, Apostolos Georgiadis, Spyridon Vassilaras, Iordanis Koutsopoulos</p>
+          <p class="summary">A data-driven way to configure OLSRv2 in tactical MANETs. Machine-learning models trained on a CORE/EMANE measurement dataset predict protocol responsiveness and overhead for each topology and configuration, and the global view that SDN adds to the MANET is what makes applying the best configuration practical.</p>
+          <div class="links">
+            <a href="https://doi.org/10.1109/MILCOM58377.2023.10356322">DOI</a>
+            <a href="RevisitingtheOLSRv2ProtocolOptimization.pdf">PDF</a>
+            <details><summary>BibTeX</summary><pre>@inproceedings{Fourfouris2023MILCOM,
+  author    = {Ioannis Fourfouris and Merkourios Karaliopoulos and Dimitrios Kafetzis and Georgios Vardoulias and Apostolos Georgiadis and Spyridon Vassilaras and Iordanis Koutsopoulos},
+  title     = {Revisiting the {OLSRv2} Protocol Optimization in {SDN}-enabled Tactical {MANETs}},
+  booktitle = {2023 IEEE Military Communications Conference (MILCOM)},
+  year      = {2023},
+  pages     = {779--786},
+  publisher = {IEEE},
+  doi       = {10.1109/MILCOM58377.2023.10356322}
+}</pre></details>
+          </div>
+        </article>
+
+        <article class="pub">
+          <div class="venue"><span class="chip">European Wireless 2023</span></div>
+          <h3>Joint Controller Placement and Intrusion Detection System Enablement in Software Defined Mobile Ad Hoc Networks</h3>
+          <p class="authors"><b>Dimitrios Kafetzis</b>, Iordanis Koutsopoulos</p>
+          <p class="summary">Where to place the SDN controller and a limited number of IDS modules in a software-defined MANET so that attack traffic paths are covered and mitigation delay stays low. A greedy heuristic and a simulated-annealing algorithm, validated in a custom Python simulator against all-nodes and random IDS placements.</p>
+          <div class="links">
+            <a href="Joint_IDS_SDN_Controller_Placement.pdf">PDF</a>
+            <details><summary>BibTeX</summary><pre>@inproceedings{Kafetzis2023IDS,
+  author    = {Dimitrios Kafetzis and Iordanis Koutsopoulos},
+  title     = {Joint Controller Placement and Intrusion Detection System Enablement in Software Defined Mobile Ad Hoc Networks},
+  booktitle = {European Wireless 2023; 28th European Wireless Conference},
+  year      = {2023},
+  pages     = {154--161},
+  publisher = {VDE},
+  isbn      = {978-3-8007-6225-5}
+}</pre></details>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <div class="pub-year">
+      <div class="year">2022</div>
+      <div class="pub-list">
+
+        <article class="pub">
+          <div class="venue"><span class="chip">IEEE Access</span><span class="chip plain">Survey &middot; 146 citations</span></div>
+          <h3>Software-Defined Networking Meets Software-Defined Radio in Mobile ad hoc Networks: State of the Art and Future Directions</h3>
+          <p class="authors"><b>Dimitrios Kafetzis</b>, Spyridon Vassilaras, Georgios Vardoulias, Iordanis Koutsopoulos</p>
+          <p class="summary">A survey of how SDN and SDR can coexist and cooperate in MANETs: architectures, cross-layer design and optimisation, and the open problems for tactical and civilian deployments.</p>
+          <div class="links">
+            <a href="https://doi.org/10.1109/ACCESS.2022.3144072">DOI</a>
+            <a href="Software-Defined_Networking_Meets_Software-Defined_Radio_in_Mobile_ad_hoc_Networks_State_of_the_Art_and_Future_Directions.pdf">PDF</a>
+            <details><summary>BibTeX</summary><pre>@article{Kafetzis2022Access,
+  author  = {Kafetzis, Dimitrios and Vassilaras, Spyridon and Vardoulias, Georgios and Koutsopoulos, Iordanis},
+  title   = {Software-Defined Networking Meets Software-Defined Radio in Mobile ad hoc Networks: State of the Art and Future Directions},
+  journal = {IEEE Access},
+  year    = {2022},
+  volume  = {10},
+  pages   = {9989--10014},
+  doi     = {10.1109/ACCESS.2022.3144072}
+}</pre></details>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+    <div class="pub-year">
+      <div class="year">2020</div>
+      <div class="pub-list">
+
+        <article class="pub">
+          <div class="venue"><span class="chip">IEEE ICUAS 2020</span></div>
+          <h3>UAV-assisted Aerial Survey of Railways using Deep Learning</h3>
+          <p class="authors"><b>Dimitrios Kafetzis</b>, Ioannis Fourfouris, Savvas Argyropoulos, Iordanis Koutsopoulos</p>
+          <p class="summary">A proof of concept for UAV-assisted vegetation and obstacle detection on railways: a new manually annotated dataset built from public clips and own recordings, a deep-learning detection pipeline evaluated per class, and tests on the NVIDIA Jetson Nano as the on-board computer.</p>
+          <div class="links">
+            <a href="https://doi.org/10.1109/ICUAS48674.2020.9213928">DOI</a>
+            <a href="2020_UAV_assisted.pdf">PDF</a>
+            <details><summary>BibTeX</summary><pre>@inproceedings{Kafetzis2020UAV,
+  author    = {Kafetzis, Dimitrios and Fourfouris, Ioannis and Argyropoulos, Savvas and Koutsopoulos, Iordanis},
+  title     = {UAV-assisted Aerial Survey of Railways using Deep Learning},
+  booktitle = {2020 International Conference on Unmanned Aircraft Systems (ICUAS)},
+  year      = {2020},
+  pages     = {1491--1500},
+  doi       = {10.1109/ICUAS48674.2020.9213928}
+}</pre></details>
+          </div>
+        </article>
+
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head"><div><p class="eyebrow">People</p><h2>Co-authors</h2></div></div>
+    <ul class="tags coauthors">
+      <li>Iordanis Koutsopoulos</li><li>Spyridon Vassilaras</li><li>Georgios Vardoulias</li><li>Savvas Argyropoulos</li><li>Merkourios Karaliopoulos</li><li>Ramin Khalili</li><li>Ioannis Fourfouris</li><li>Nikos Fotiou</li><li>Jad Nasreddine</li><li>Apostolos Georgiadis</li>
+    </ul>
+  </div>
+</section>

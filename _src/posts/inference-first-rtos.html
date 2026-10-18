@@ -1,0 +1,55 @@
+<h2>What goes wrong when inference is a library</h2>
+
+<p>Most microcontroller AI stacks look the same. An RTOS schedules threads. A TensorFlow Lite Micro interpreter sits inside one of them. The NPU driver sits under that. Inference is an application concern. The OS does not know it is happening.</p>
+
+<p>This works until you have more than one model, a deadline, or a second core. Then the seams show. The heap fragments under tensors that are allocated and freed in lockstep every frame. The NPU sits idle while the CPU copies a frame that DMA could have landed. Nobody owns accelerator state, so two threads can both believe they hold the NPU. A model update is a flash write the scheduler knows nothing about. Every project solves these again, differently, in application code.</p>
+
+<p>I started <a href="https://github.com/Dimitrios-Kafetzis/SynapticOS">SynapticOS</a> to find out what changes when the inference pipeline is the thing the OS is built around. It runs on Zephyr 3.7 and targets the NXP FRDM-MCXN947: two Cortex-M33 cores at 150 MHz, an eIQ Neutron NPU, 512 KB of SRAM and 2 MB of flash, on a board that costs about fifteen dollars. It is Apache 2.0. The same code builds for the board and for qemu_cortex_m3, so every change passes the test suite in emulation before it touches hardware.</p>
+
+<h2>Memory that matches how a network allocates</h2>
+
+<p>The first decision was to stop using a general heap for tensors. A network allocates in a very regular pattern. Weights live for the whole session. Activations live for one frame. Scratch lives for one layer. A bump allocator fits that pattern exactly, and it cannot fragment.</p>
+
+<p>The arena has a persistent region growing up from the base, an ephemeral region after it, and a scratch pool at the top:</p>
+
+<pre><code>[base ... persistent ... ephemeral ... | scratch_pool ... base+total]</code></pre>
+
+<p>Every tensor pointer is 16-byte aligned because the NPU and the DMA engine need it. An allocation costs about 154 cycles regardless of tensor size. Between frames the ephemeral pointer is reset to the persistent boundary. The face-detection sample does this every frame, and its arena peak returns to zero each time. In the 11,106-job soak test at the end of Phase 5, the arena high-water mark did not move once.</p>
+
+<p>Phase 5 added a planner on top. For DAG models with skip connections, buffer lifetimes run from the defining layer to the last consumer, and a first-fit pass lays them into one plan area. On the 8-layer demo DAG the planned peak is 43 percent below the all-live baseline, and the plan takes 18 microseconds on the board. The plan is deterministic, so a suspended job can replan on resume and get identical offsets.</p>
+
+<h2>The job, not the thread, is the unit of scheduling</h2>
+
+<p>Zephyr threads still exist underneath, but the API submits inference jobs. A job carries a priority class (realtime, normal, best-effort), an optional deadline, and a preemptible flag. A dedicated scheduler thread dispatches by priority first, then earliest deadline within a priority, then FIFO. Deadline misses are counted and visible from the shell.</p>
+
+<p>The reason to schedule jobs instead of threads is layer boundaries. An NPU runs one layer at a time and hands control back between layers. That is a natural preemption point that a thread scheduler cannot see. In SynapticOS a preemptible layered job checks for queued higher-priority work between layers, parks its context in a suspension slot, and resumes bit-exactly later. On the board the context save measures 10 microseconds. That number carries a label: it was measured with the software NPU stub and synthetic layered models, because the Neutron SDK does not expose per-layer invocation. Real preemption granularity on Neutron will be per delegated segment.</p>
+
+<p>The pipeline is an OS object too. It is drawn from a static pool, validated against a canonical pre-process, model, post-process order, and its stage buffers are sized from tensor geometry at build time. There is no heap on the inference path.</p>
+
+<h2>The second core is a client, and the model is a file with a rollback</h2>
+
+<p>The MCXN947's second core has no FPU, no DSP extension, no TrustZone and no MPU. I treated that as a design input. CPU0 owns the models, the NPU and the scheduler. CPU1 runs the application and reaches inference through a message-based service over shared SRAM. The transport is two lock-free single-producer single-consumer rings, one writer per index, ordered by data memory barriers alone, because the platform has no cross-core atomics worth trusting. Round trips measure 15 microseconds typical and 81 worst case on the board. Tensors stage zero-copy in a shared slot; a 27 KB frame cannot exist twice in 64 KB of RAM. Protection is one-directional. CPU0's MPU guards CPU1's RAM and aborts only the offending thread, but nothing can guard the other way.</p>
+
+<p>Models are persistent objects in flash. A ping-pong registry pair with a generation counter and CRC32 gives atomic, power-loss-safe commits, and the newest valid copy wins at boot. Two 440 KB model slots are A/B: whichever slot the active registry does not reference is the staging target for the next over-the-air update. Every load passes a CRC gate. Registry commits take 1.9 to 2.6 ms and the boot scan 23 to 189 microseconds, measured on the board. A reset injected at 81 percent of a raw transfer left the store intact and the old model serving after reboot.</p>
+
+<h2>What the board taught me</h2>
+
+<p>QEMU passes everything. The board does not, and that is the point of owning one.</p>
+
+<p>Releasing CPU1 into erased flash wedges the whole chip, debug port included. Erased flash raises ECC bus errors, and CPU1's vector fetch stalls the flash system CPU0 executes from. Recovery is ISP only. The runtime now blank-checks the bank through the ROM API before releasing the core.</p>
+
+<p>A single ROM-API erase spanning 55 sectors wedged the chip the same way, while every one-sector erase before and after was fine. Erases are now sector-wise with 1 ms breathers.</p>
+
+<p>A placeholder limit became a field bug. The stub NPU HAL had an arbitrary 256 KB cap, and it refused a valid, stored, activated 432 KB model. Rollback restored service in one shell command, an involuntary demo of why rollback exists.</p>
+
+<p>Zephyr 3.7's eDMA driver never issues the software START that memory-to-memory transfers need on eDMA v4. Secure-alias pointers bus-error inside the DMA. The tensor arena itself turned out not to be DMA-reachable under the current bus security attributes, and because the SoC shares one no-error IRQ, a faulted transfer is a silent timeout. The ingest benchmark moved to DMA-reachable static buffers, where DMA lands 8 KB frames at 131 microseconds each against 460 for a CPU copy. Arena DMA visibility is still open.</p>
+
+<p>And a preempting submitter must outrank the scheduler thread, or it can never inject mid-job. QEMU's cooperative test threads had hidden that completely.</p>
+
+<p>The README records each of these, with the miss next to the fix. The PowerQuad DSP offload reaches 3.03x on a 256-point FFT and 1.72x on a Q15 matmul against hard-FPU software kernels, short of the 10x the plan asked for. The 500 KB in 10 seconds OTA target cannot be met at 115200 baud; the transport already runs at 98.7 percent of line rate, so the fix is a faster link, not more software.</p>
+
+<h2>What is still open</h2>
+
+<p>The biggest caveat is the stub label. Through Phase 5, every inference latency was measured on a deterministic software NPU stub, because the Neutron driver ships as closed binaries under NXP's licence and cannot be vendored into an Apache 2.0 tree. Phase 6 integrates it as an optional module, and the first real Neutron inference is live: a 32x32x3 INT8 classifier at 6.6 ms when resident, 17.1 ms including the on-demand swap the single-residency NPU needs. The stub-labelled figures stay labelled until a real 96x96 model is converted.</p>
+
+<p>Also open: arena DMA visibility, a quiesce that drains only the running job and not suspended ones, multi-model NPU residency, power management, and the real camera path. The three arXiv papers (<a href="https://arxiv.org/abs/2607.12606">2607.12606</a>, <a href="https://arxiv.org/abs/2607.12614">2607.12614</a> and <a href="https://arxiv.org/abs/2607.12620">2607.12620</a>) document Phases 1 through 3 with the measured numbers and the deviations from plan. If you work on MCU inference, I would like to know what breaks on your board.</p>

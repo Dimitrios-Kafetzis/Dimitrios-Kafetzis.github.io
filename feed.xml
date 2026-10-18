@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+<channel>
+<title>Dimitrios Kafetzis · Blog</title>
+<link>https://dimitrios-kafetzis.github.io/blog.html</link>
+<atom:link href="https://dimitrios-kafetzis.github.io/feed.xml" rel="self" type="application/rss+xml"/>
+<description>Lessons learned while building operating systems, inference runtimes and research testbeds for constrained hardware.</description>
+<language>en</language>
+<lastBuildDate>Sun, 18 Oct 2026 09:00:00 +0000</lastBuildDate>
+<item>
+<title>Why I&#x27;m building an RTOS where inference is the primary workload</title>
+<link>https://dimitrios-kafetzis.github.io/blog/inference-first-rtos.html</link>
+<guid isPermaLink="true">https://dimitrios-kafetzis.github.io/blog/inference-first-rtos.html</guid>
+<pubDate>Sun, 18 Oct 2026 09:00:00 +0000</pubDate>
+<description>What goes wrong when a neural network is bolted onto a scheduler built for control loops, and the design decisions behind SynapticOS.</description>
+<content:encoded><![CDATA[<h2>What goes wrong when inference is a library</h2>
+
+<p>Most microcontroller AI stacks look the same. An RTOS schedules threads. A TensorFlow Lite Micro interpreter sits inside one of them. The NPU driver sits under that. Inference is an application concern. The OS does not know it is happening.</p>
+
+<p>This works until you have more than one model, a deadline, or a second core. Then the seams show. The heap fragments under tensors that are allocated and freed in lockstep every frame. The NPU sits idle while the CPU copies a frame that DMA could have landed. Nobody owns accelerator state, so two threads can both believe they hold the NPU. A model update is a flash write the scheduler knows nothing about. Every project solves these again, differently, in application code.</p>
+
+<p>I started <a href="https://github.com/Dimitrios-Kafetzis/SynapticOS">SynapticOS</a> to find out what changes when the inference pipeline is the thing the OS is built around. It runs on Zephyr 3.7 and targets the NXP FRDM-MCXN947: two Cortex-M33 cores at 150 MHz, an eIQ Neutron NPU, 512 KB of SRAM and 2 MB of flash, on a board that costs about fifteen dollars. It is Apache 2.0. The same code builds for the board and for qemu_cortex_m3, so every change passes the test suite in emulation before it touches hardware.</p>
+
+<h2>Memory that matches how a network allocates</h2>
+
+<p>The first decision was to stop using a general heap for tensors. A network allocates in a very regular pattern. Weights live for the whole session. Activations live for one frame. Scratch lives for one layer. A bump allocator fits that pattern exactly, and it cannot fragment.</p>
+
+<p>The arena has a persistent region growing up from the base, an ephemeral region after it, and a scratch pool at the top:</p>
+
+<pre><code>[base ... persistent ... ephemeral ... | scratch_pool ... base+total]</code></pre>
+
+<p>Every tensor pointer is 16-byte aligned because the NPU and the DMA engine need it. An allocation costs about 154 cycles regardless of tensor size. Between frames the ephemeral pointer is reset to the persistent boundary. The face-detection sample does this every frame, and its arena peak returns to zero each time. In the 11,106-job soak test at the end of Phase 5, the arena high-water mark did not move once.</p>
+
+<p>Phase 5 added a planner on top. For DAG models with skip connections, buffer lifetimes run from the defining layer to the last consumer, and a first-fit pass lays them into one plan area. On the 8-layer demo DAG the planned peak is 43 percent below the all-live baseline, and the plan takes 18 microseconds on the board. The plan is deterministic, so a suspended job can replan on resume and get identical offsets.</p>
+
+<h2>The job, not the thread, is the unit of scheduling</h2>
+
+<p>Zephyr threads still exist underneath, but the API submits inference jobs. A job carries a priority class (realtime, normal, best-effort), an optional deadline, and a preemptible flag. A dedicated scheduler thread dispatches by priority first, then earliest deadline within a priority, then FIFO. Deadline misses are counted and visible from the shell.</p>
+
+<p>The reason to schedule jobs instead of threads is layer boundaries. An NPU runs one layer at a time and hands control back between layers. That is a natural preemption point that a thread scheduler cannot see. In SynapticOS a preemptible layered job checks for queued higher-priority work between layers, parks its context in a suspension slot, and resumes bit-exactly later. On the board the context save measures 10 microseconds. That number carries a label: it was measured with the software NPU stub and synthetic layered models, because the Neutron SDK does not expose per-layer invocation. Real preemption granularity on Neutron will be per delegated segment.</p>
+
+<p>The pipeline is an OS object too. It is drawn from a static pool, validated against a canonical pre-process, model, post-process order, and its stage buffers are sized from tensor geometry at build time. There is no heap on the inference path.</p>
+
+<h2>The second core is a client, and the model is a file with a rollback</h2>
+
+<p>The MCXN947's second core has no FPU, no DSP extension, no TrustZone and no MPU. I treated that as a design input. CPU0 owns the models, the NPU and the scheduler. CPU1 runs the application and reaches inference through a message-based service over shared SRAM. The transport is two lock-free single-producer single-consumer rings, one writer per index, ordered by data memory barriers alone, because the platform has no cross-core atomics worth trusting. Round trips measure 15 microseconds typical and 81 worst case on the board. Tensors stage zero-copy in a shared slot; a 27 KB frame cannot exist twice in 64 KB of RAM. Protection is one-directional. CPU0's MPU guards CPU1's RAM and aborts only the offending thread, but nothing can guard the other way.</p>
+
+<p>Models are persistent objects in flash. A ping-pong registry pair with a generation counter and CRC32 gives atomic, power-loss-safe commits, and the newest valid copy wins at boot. Two 440 KB model slots are A/B: whichever slot the active registry does not reference is the staging target for the next over-the-air update. Every load passes a CRC gate. Registry commits take 1.9 to 2.6 ms and the boot scan 23 to 189 microseconds, measured on the board. A reset injected at 81 percent of a raw transfer left the store intact and the old model serving after reboot.</p>
+
+<h2>What the board taught me</h2>
+
+<p>QEMU passes everything. The board does not, and that is the point of owning one.</p>
+
+<p>Releasing CPU1 into erased flash wedges the whole chip, debug port included. Erased flash raises ECC bus errors, and CPU1's vector fetch stalls the flash system CPU0 executes from. Recovery is ISP only. The runtime now blank-checks the bank through the ROM API before releasing the core.</p>
+
+<p>A single ROM-API erase spanning 55 sectors wedged the chip the same way, while every one-sector erase before and after was fine. Erases are now sector-wise with 1 ms breathers.</p>
+
+<p>A placeholder limit became a field bug. The stub NPU HAL had an arbitrary 256 KB cap, and it refused a valid, stored, activated 432 KB model. Rollback restored service in one shell command, an involuntary demo of why rollback exists.</p>
+
+<p>Zephyr 3.7's eDMA driver never issues the software START that memory-to-memory transfers need on eDMA v4. Secure-alias pointers bus-error inside the DMA. The tensor arena itself turned out not to be DMA-reachable under the current bus security attributes, and because the SoC shares one no-error IRQ, a faulted transfer is a silent timeout. The ingest benchmark moved to DMA-reachable static buffers, where DMA lands 8 KB frames at 131 microseconds each against 460 for a CPU copy. Arena DMA visibility is still open.</p>
+
+<p>And a preempting submitter must outrank the scheduler thread, or it can never inject mid-job. QEMU's cooperative test threads had hidden that completely.</p>
+
+<p>The README records each of these, with the miss next to the fix. The PowerQuad DSP offload reaches 3.03x on a 256-point FFT and 1.72x on a Q15 matmul against hard-FPU software kernels, short of the 10x the plan asked for. The 500 KB in 10 seconds OTA target cannot be met at 115200 baud; the transport already runs at 98.7 percent of line rate, so the fix is a faster link, not more software.</p>
+
+<h2>What is still open</h2>
+
+<p>The biggest caveat is the stub label. Through Phase 5, every inference latency was measured on a deterministic software NPU stub, because the Neutron driver ships as closed binaries under NXP's licence and cannot be vendored into an Apache 2.0 tree. Phase 6 integrates it as an optional module, and the first real Neutron inference is live: a 32x32x3 INT8 classifier at 6.6 ms when resident, 17.1 ms including the on-demand swap the single-residency NPU needs. The stub-labelled figures stay labelled until a real 96x96 model is converted.</p>
+
+<p>Also open: arena DMA visibility, a quiesce that drains only the running job and not suspended ones, multi-model NPU residency, power management, and the real camera path. The three arXiv papers (<a href="https://arxiv.org/abs/2607.12606">2607.12606</a>, <a href="https://arxiv.org/abs/2607.12614">2607.12614</a> and <a href="https://arxiv.org/abs/2607.12620">2607.12620</a>) document Phases 1 through 3 with the measured numbers and the deviations from plan. If you work on MCU inference, I would like to know what breaks on your board.</p>
+]]></content:encoded>
+<category>SynapticOS</category>
+<category>Zephyr</category>
+<category>NPU</category>
+<category>Embedded</category>
+</item>
+<item>
+<title>Ten patches into Zephyr: what I learned about upstream contribution</title>
+<link>https://dimitrios-kafetzis.github.io/blog/ten-patches-into-zephyr.html</link>
+<guid isPermaLink="true">https://dimitrios-kafetzis.github.io/blog/ten-patches-into-zephyr.html</guid>
+<pubDate>Sun, 18 Oct 2026 09:00:00 +0000</pubDate>
+<description>How I picked my first issues, what maintainers asked for, and the habits that stuck after ten pull requests to a large RTOS project.</description>
+<content:encoded><![CDATA[<h2>Why I started</h2>
+
+<p>My own RTOS project, SynapticOS, runs on Zephyr, and it was pinned to Zephyr 3.7. Moving it forward would surface bugs on my board, the NXP FRDM-MCXN947. The right place to fix those is upstream. The board is supported in-tree, down to an NPU sample that CI only builds and never runs on silicon. And Zephyr 4.6, due in April 2027, is the next LTS. A fix that lands now ships for years.</p>
+
+<p>The timing shaped the work. In early October 2026 Zephyr 4.5 was in release candidates, with the hard freeze on 12 October. Between RC1 and the release only bug fixes merge. So I went looking for bugs I could reproduce on my desk, not features I wanted to add. I opened the first four pull requests on 4 October.</p>
+
+<h2>How I picked the first issues</h2>
+
+<p>I wrote down four conditions before I touched any code. The issue is open, and nobody has a PR for it or has said in the last two weeks that they are on it. I can reproduce or verify it here, on the board, on native_sim or in QEMU. The likely fix is small and local. And it can merge in the current phase of the release cycle. Then I ranked by what could merge now and what I could test on hardware that few others have.</p>
+
+<p>The best source turned out to be NXP's own CI engineers. They file failures on the FRDM-MCXN947 and its sibling boards every week. A contributor who can reproduce those on real silicon and send a small tested fix is rare, and those reports welcomed one. The second source was abandoned work. Issue #114976 had a fix in a PR its author had closed. I picked the idea up, added a unit test that fails without the fix, and opened <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121226">#121226</a>.</p>
+
+<p>Most candidates failed the first condition: in two days of scanning I dropped dozens because the reporter already had a PR up. Before coding I wrote a root-cause note, marked each statement verified or inferred, and posted the cause and reproduction on the issue before opening the PR.</p>
+
+<h2>The commit message lesson</h2>
+
+<p>My first PR, <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121251">#121251</a>, made a userspace build fail at configure time when gperf is missing, instead of dying late with "GPERF-NOTFOUND". The build system maintainer asked for a different design the next day: move the lookup to FindTargetTools.cmake, which runs after Kconfig, and mark it REQUIRED when CONFIG_USERSPACE is on. I did that the same day. Then the next review comment said: "A very long commit message of how it used to work. Please just describe in a few sentences what this commit does, and cut all the nonsense." The same comment added that "Fixes #issue" belongs in the PR description, not the commit. I rewrote it in twenty minutes and the PR merged on 8 October, my first, which also unlocked automatic CI for later PRs.</p>
+
+<p>Three days later the same reviewer said the same thing on <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121369">#121369</a>, a one-line sysbuild fix that already had three approvals. I reworded it within half an hour. The reply was "much better", and the PR merged that afternoon. The rule I adopted: the commit body says what the change does and why in a few sentences, plus one line on what was tested and what was not. The history, the root-cause narrative and the test matrix go in the PR description. I rewrote four unopened branches the same way.</p>
+
+<h2>The devicetree lesson</h2>
+
+<p><a href="https://github.com/zephyrproject-rtos/zephyr/pull/121224">#121224</a> fixes a 4.5 regression where MCUboot could not find its slot on the FRDM-MCXN947. A refactor had moved a secure-alias <code>ranges</code> from the flash controller to the flash node, and a node's <code>ranges</code> only translates its children, so every partition landed at an address 0x10000000 too large. My fix moved the controller under <code>/soc</code>, as a sibling SoC had done, and NXP's test engineer confirmed it on their board. Then the reviewer NXP pointed to as the expert on mapped partitions requested changes: "missing ranges" on one node, and an empty <code>ranges;</code> that was "not valid, use the proper ranges with values". After the second version the reviewer found the secure and non-secure files "very confusing", and that the controller's <code>ranges</code> must also cover the UID node. An NXP maintainer sketched one <code>ranges</code> entry per child. The first reviewer answered "that'll work". I pushed a third version on 16 October.</p>
+
+<p>For each version I checked that the generated devicetree was identical on all fifteen MCXN targets and re-ran the MCUboot, flash and hwinfo tests on the board. The code had worked since version one. What changed was how clearly the devicetree said what it meant. When the two reviewers pulled in different directions, I tried the alternative layout, posted a table of the resulting addresses, and offered to rework. As I write this it has one approval and waits for a re-review.</p>
+
+<h2>The scope lesson</h2>
+
+<p><a href="https://github.com/zephyrproject-rtos/zephyr/pull/121225">#121225</a> started as a few lines in three board files. The USB host driver hard-faulted on MCX N boards because the clock setup only ran for the device driver. A reviewer asked me to add the host_uvc sample for the board, so I did, and another contributor ran it with a camera. Then a Nordic reviewer asked whether overriding <code>compatible</code> on the <code>usb1</code> node was right, and it was not. I added a separate disabled <code>usbh1</code> node the way the RT7xx SoCs do. Then the USB maintainer wrote "No board/platform specific overlays" on the sample files. I dropped the sample commit entirely and put the host label in the board devicetree. The final version is smaller than the second one.</p>
+
+<p><a href="https://github.com/zephyrproject-rtos/zephyr/pull/121250">#121250</a> went the same way. I had taught a logging guard in the CDC ACM class about one more chosen node. The USB maintainer answered that chasing chosen nodes from a class driver "does not scale" and the guard should go. I proposed removing it and demoting the per-transfer messages to debug level so the old recursion cannot return, and when no answer came in ten days I did that. The fix the maintainer wants is usually smaller than the one you drafted.</p>
+
+<h2>Habits that stuck</h2>
+
+<p>Every PR body I write now has a Testing section with the exact target, what passed, and a line that starts with "Not tested". That line is what let <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121835">#121835</a> merge. It fixes NVS on Renesas RA boards, which I do not own. I posted the diff on the issue first, the reporter confirmed it on an EK-RA4M2, and the PR cited that run and said plainly that nothing ran on RA hardware here. Four approvals in three days.</p>
+
+<p>I verify other people's PRs on my board. Six fixes I had ready were overtaken by someone else's PR. When I could, I tested theirs on the FRDM-MCXN947 and posted the result instead. <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121728">#121728</a> came from the same CI stream: a UART test that disabled RX before the last byte had looped back.</p>
+
+<p>I answer reviewers within hours and nudge once after seven days, then stop. The nudge on #121226 got the issue reopened after a stale bot closed it under the open PR.</p>
+
+<p>I used Claude Code for the analysis, the builds and the drafts. Zephyr's policy on that is explicit and workable: one <code>Assisted-by</code> trailer per commit, no co-author trailers, and the human reviews, tests, signs the DCO and posts. I approve every commit and every comment before it goes out under my name.</p>
+
+<p>The queue is not under my control; the work is. A two-line defconfig fix, <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121370">#121370</a>, waited eight days for a second approval and then merged. A three-line fix for OpenTitan, <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121602">#121602</a>, has had no review in ten days. Ten PRs in eight days, five merged within ten, and the merged ones add twenty-four lines between them. Small is fine. Tested and honest is what merges.</p>
+]]></content:encoded>
+<category>Zephyr</category>
+<category>Open source</category>
+<category>Embedded</category>
+</item>
+<item>
+<title>What splitting an LLM across Raspberry Pis taught me</title>
+<link>https://dimitrios-kafetzis.github.io/blog/splitting-an-llm-across-raspberry-pis.html</link>
+<guid isPermaLink="true">https://dimitrios-kafetzis.github.io/blog/splitting-an-llm-across-raspberry-pis.html</guid>
+<pubDate>Sun, 18 Oct 2026 09:00:00 +0000</pubDate>
+<description>A small language model does not fit one edge device. Lessons from a WiFi testbed, a simulator and two papers on partitioning inference.</description>
+<content:encoded><![CDATA[<p>A small language model does not fit on a Raspberry Pi. TinyLlama-1.1B needs about 4.4 GB of memory. A Raspberry Pi 4 has 4 GB, and the operating system takes some of it. So before I could ask anything about latency, I had to answer a simpler question: how do you run a model that no single device can hold? You split it across several devices and pay for it over the network. This article is about what that payment costs and how I lowered it.</p>
+
+<p>The setup was five Raspberry Pi 4 Model B boards, 4 GB of RAM each, a Cortex-A72 at 1.8 GHz, on 802.11ac WiFi through a dedicated access point. One board is the controller. Four are workers. Measured round-trip time between boards was 8 to 12 ms.</p>
+
+<h2>Where the time goes</h2>
+
+<p>Before LLMs I built a testbed for ordinary DNN partitioning: AlexNet-class models on CIFAR-10, split at layer boundaries across Raspberry Pis talking to a base station over WiFi. It profiled per-layer latency, CPU and memory on every device, measured link latencies, and fed all of it to a few optimisers. It also had <code>tc</code>-based latency injection and INA260 power sensors. We demonstrated it at ACM MobiHoc 2024.</p>
+
+<p>That testbed taught me one thing above all: you cannot reason about a partition without measured link latencies. A layer's compute profile is half the story. The other half is how long an activation takes to cross from one Pi to the next, and on WiFi that number moves.</p>
+
+<p>The second lesson came from simulation. Decoder-only transformers generate one token at a time, and each token appends keys and values to a per-head KV cache. Memory grows for as long as you generate. For our WiOpt 2025 paper we built a discrete-event simulator of a decoder layer across 25 heterogeneous devices. By 1000 tokens, a layer-based EdgeShard-style placement passed 1000 seconds of latency and Galaxy sat around 400 to 600 seconds, while head-level placement with dynamic migration stayed under 200. With 3 to 5 devices, our heuristic was within 15 to 20 percent of an exact solver.</p>
+
+<p>I want to be honest about those numbers. The simulator assumed 1 to 10 Gbps links. WiFi between Pis is nothing like that. The simulation said head-level partitioning was worth pursuing. It did not say what I would get on hardware.</p>
+
+<h2>Splitting by heads instead of layers</h2>
+
+<p>The standard split is layer-wise: layer 1 on device 1, layer 2 on device 2, and so on. It is simple. It also means one device computes while the others wait. And if one layer does not fit the smallest device, it does not help at all.</p>
+
+<p>Attention heads give another cut. The heads in a layer are independent, and each owns its slice of the KV cache. So each head can be a unit of placement, and every device can work on the same layer at once. Head outputs are gathered at the device holding the projection, and the result is broadcast to the next layer's devices.</p>
+
+<pre><code>                         +--------------+
+                         |  controller  |  embeddings, LM head, placement,
+                         |              |  speculation decisions, token loop
+                         +------+-------+
+              broadcast  +------+-----------+   PyTorch RPC over WiFi
+             +-----------v--+ +-v----------+ +v-------------+
+             |   worker1    | |  worker2   | |   worker3 ...|
+             | heads, FFN,  | | heads,     | | heads,       |
+             | projection   | | projection | | FFN blocks   |
+             +--------------+ +------------+ +--------------+
+                    +-- gather: head outputs --+
+                        at the projection device</code></pre>
+
+<p>On the testbed, per-layer attention for TinyLlama dropped from 38 ms on one device to 14 ms across four. End to end, head-level partitioning alone gave 1.24 to 1.31 times speedup over layer-wise.</p>
+
+<p>Then the bottleneck moved. Layer-wise, attention took about 55 percent of per-layer time and the feed-forward network 35 percent. After distributing heads, attention fell to 24 percent and the FFN rose to 48 percent. The FFN still ran on one device while three waited. Parallelising the fast part made the slow part obvious.</p>
+
+<h2>Speculating across layers</h2>
+
+<p>The fix came from the residual structure. After attention and projection, a layer has an intermediate output Z. The final output is X = Z + FFN(Z). The FFN term is additive and usually small, so Z already approximates X well.</p>
+
+<p>HeadSplit forwards Z to the next layer's devices as soon as it exists. They start the next attention on it while the FFN runs elsewhere. When the FFN finishes, the controller compares the FFN output norm to the norm of Z. Below a tolerance of 0.05, the speculative attention is kept. Otherwise it is re-executed with the exact input, so the output never drifts. With tolerance zero the speculative path is bit-for-bit identical to exact execution.</p>
+
+<p>This is not speculative decoding. There is no draft model and no guessing of tokens. It pipelines consecutive layers inside a single token's forward pass, on compute that would otherwise sit idle.</p>
+
+<p>Not every layer deserves it. We profile offline on WikiText-103 and record how often the test passes at each layer transition. A layer speculates only if its acceptance probability is at least 0.7 and the expected saving is positive. For TinyLlama, layers 1 to 20 had acceptance of at least 0.82, average 0.87. Layers 21 and 22 were below 0.60, because the final layers' FFN contributions are larger, so they run exactly. Overall acceptance was 84 percent.</p>
+
+<p>The threshold is a trade-off, not a knob to tighten. At 0.02, acceptance rose to 91 percent but speedup fell to 1.48 times because of re-execution. At 0.10 it fell to 1.51 times. We kept 0.05.</p>
+
+<p>The two ideas are coupled. Head partitioning creates the idle window that speculation fills. Speculation changes the placement target: a speculating layer's attention only needs to finish within the previous layer's FFN time, so heads can be spread for memory balance instead of minimum attention time. The greedy placement in our SPAWC 2026 paper places FFN and projection first, then heads, in under 5 ms. It matters: 256 tokens took 40.0 s with greedy placement, 44.8 s with round-robin and 62.4 s layer-wise. The full system reached 1.54 to 1.67 times speedup over layer-wise, and 1.42 times on GPT-2 Small.</p>
+
+<h2>What the speedup hides</h2>
+
+<p>Head-level partitioning moves four times more data than layer-wise: 52.8 MB versus 13.2 MB for 256 tokens. Per-device power rose 26 percent, from 3.8 W idle to 4.8 to 5.0 W active. Total energy still fell 6 percent because the job finished sooner, and the energy-delay product improved 47 percent. I would not have believed that without the INA260 boards on every Pi.</p>
+
+<p>Memory needs active management. At 256 tokens the KV cache is about 88 MB across 22 layers. At 512 it doubles. The controller re-runs placement whenever a device crosses 85 percent of memory, about 1.4 times per 512-token run, each in under 5 ms. Without it, a static placement ran out of memory beyond roughly 400 tokens.</p>
+
+<p>WiFi needs margins. We measure round-trip times at startup, add 15 percent, and retry RPCs when a link stalls. None of that is clever. All of it is necessary.</p>
+
+<h2>What still does not work well</h2>
+
+<p>The absolute numbers are slow. At 256 tokens we went from 4.1 to 6.4 tokens per second. That is useful for an on-device assistant, not a replacement for a GPU.</p>
+
+<p>The approach needs at least three devices and round-trip time under about 25 ms. Beyond that, gather and broadcast cost more than the parallelism saves, and layer-wise is the better choice. Initial measurements kept at least 1.35 times speedup up to 15 ms of added RTT, but the full robustness study is still ahead of us.</p>
+
+<p>Grouped-query attention is a problem. Llama-3-style models share one KV head among several query heads, leaving fewer independent units to spread. Quantised models change the compute-to-communication ratio and we have not measured them. Per-layer speculation decisions are fixed at profiling time; adapting them at runtime is open work.</p>
+
+<p>What I keep coming back to is simple. On constrained hardware, the model's structure is the only free resource you have. Layers hide the parallelism inside them. Heads expose it. Residual connections let you start early and check later. Everything else is measuring where the time goes and refusing to guess.</p>
+
+<p>The code is on GitHub: <a href="https://github.com/Dimitrios-Kafetzis/HeadSplit">HeadSplit</a>, the <a href="https://github.com/Dimitrios-Kafetzis/Distributed-Transformer-Inference-Simulator">simulator</a> and the <a href="https://github.com/Dimitrios-Kafetzis/DNN-Partitioning-and-Offloading-Testbed">DNN testbed</a>. The papers are on the <a href="../publications.html">publications page</a>.</p>
+]]></content:encoded>
+<category>LLM</category>
+<category>Distributed inference</category>
+<category>Edge AI</category>
+<category>Research</category>
+</item>
+<item>
+<title>Zero-allocation inference on Cortex-M: the design decisions behind EdgeNN</title>
+<link>https://dimitrios-kafetzis.github.io/blog/zero-allocation-inference-on-cortex-m.html</link>
+<guid isPermaLink="true">https://dimitrios-kafetzis.github.io/blog/zero-allocation-inference-on-cortex-m.html</guid>
+<pubDate>Sun, 18 Oct 2026 09:00:00 +0000</pubDate>
+<description>Why a microcontroller inference library should never touch the heap, and how a static arena, INT8 arithmetic and a graph runtime fit in under 50 KB.</description>
+<content:encoded><![CDATA[<h2>The failure mode I wanted to rule out</h2>
+
+<p>A microcontroller running a neural network has a small set of ways to fail badly. One of the worst is a heap that slowly falls apart. You allocate a tensor, free it, allocate a slightly larger one. After a few thousand inferences the heap is fragmented. The next allocation fails even though the total free memory is larger than the request. Nothing in the model changed. The device just stops.</p>
+
+<p>The second failure is quieter. Each malloc and free takes a variable amount of time that depends on the heap state, and the variance shows up directly in your inference latency. If the inference sits inside a control loop with a fixed period, you cannot budget for it. You can only hope.</p>
+
+<p>I wanted an inference library where neither of these things could happen. Not because of a coding rule, but because of the design. That constraint became <a href="https://github.com/Dimitrios-Kafetzis/EdgeNN">EdgeNN</a>: a C11 library for Dense, Conv, LSTM, GRU and Transformer inference on ARM Cortex-M and Cortex-A, with no heap allocation anywhere in the inference path. This article is about the decisions behind it.</p>
+
+<h2>Two arenas and a bump pointer</h2>
+
+<p>All memory in EdgeNN comes from arenas that the application owns. An arena is a buffer, a capacity, an offset and a peak counter. Allocation aligns the offset up (16 bytes by default) and bumps it. It is O(1). It cannot fragment. If the request does not fit, it returns <code>EDGENN_ERR_OUT_OF_MEMORY</code> and leaves the arena untouched.</p>
+
+<pre><code>typedef struct {
+    uint8_t     *base;
+    size_t       capacity;
+    size_t       offset;
+    size_t       peak;
+    uint32_t     alloc_count;
+} edgenn_arena_t;
+
+size_t edgenn_arena_save(const edgenn_arena_t *arena);
+void   edgenn_arena_restore(edgenn_arena_t *arena, size_t state);</code></pre>
+
+<p>At runtime there are two arenas. The weight arena is filled once at model load and never freed. The scratch arena holds activations and operator temporaries. The pattern every operator follows is save, allocate, compute, restore. An LSTM cell saves the scratch offset, allocates its 4H gate buffer, runs the step, and restores. Over a 200-step sequence the scratch usage stays flat. The graph executor does the same thing around every layer, so scratch consumption is bounded by the single most expensive operator, not the sum of all of them.</p>
+
+<p>The arena API also includes a ping-pong manager: two scratch regions that alternate roles as input and output between layers. The consumed input region is reset and becomes the next output. Peak activation memory is then two times the largest layer, instead of the sum of every layer. I should be honest here. The ping-pong buffer is implemented and tested, but the current graph executor uses the simpler save and restore scheme on a single scratch arena. Wiring ping-pong into the executor is on the list.</p>
+
+<p>The peak counter matters more than it looks. You run your model once on the host, read <code>edgenn_arena_peak()</code>, and you know exactly how much SRAM to reserve on the target. No guessing, no padding by a factor of two.</p>
+
+<h2>INT8 first, floats only at load time</h2>
+
+<p>Many Cortex-M parts have no FPU, and the Cortex-M4's optional FPU is single precision only. So I made INT8 the primary path and FP32 the reference path, rather than the reverse.</p>
+
+<p>The scheme is symmetric INT8 for weights, with the zero point fixed at zero. That removes a subtraction from the inner loop. Weights are quantised per output channel for Dense and Conv. Activations are per tensor. Accumulation is INT32, with INT32 biases. The step that usually brings floats back in is requantisation: scaling the INT32 accumulator down to INT8. EdgeNN precomputes a fixed-point multiplier and shift at load time using <code>frexpf</code>, so the runtime does one multiply-high and one shift. On Cortex-M7 that compiles down to SMMUL plus an arithmetic shift.</p>
+
+<p>The convention in the codebase is simple to state: no <code>float</code> in the INT8 inference path. Floats are allowed when the model loads, when scales are converted to multipliers and when lookup tables are built. They are not allowed inside a kernel.</p>
+
+<p>Sigmoid, tanh and GELU are the other place where floats creep in. For INT8 I use 256-entry lookup tables that map every possible input byte to an output byte. Building a table costs 256 float evaluations at load time and 256 bytes of memory. Applying it is one indexed load per element. The error is bounded by the output quantisation step, because the table is exact on the grid.</p>
+
+<p>Two places need more than 8 bits. The LSTM cell state integrates across time steps, so its parameter struct carries separate quantisation parameters for an INT16 cell state. Attention scores go through a softmax, where small differences matter, so the attention params carry INT16 score quantisation too. Both are declared in the headers. Today the RNN and Transformer operators ship as FP32, with INT8 planned.</p>
+
+<h2>A graph runtime, not just kernels</h2>
+
+<p>CMSIS-NN is excellent and I plan to use it as a backend. But it is operator-level only. You assemble the model by hand, you manage every buffer by hand, and you redo that work for every model. TFLite Micro has a runtime, but it is C++, carries roughly 100 KB of interpreter, and does not cover attention.</p>
+
+<p>EdgeNN sits in between. A model is a linear array of layer descriptors, each holding an operator type, a params pointer and indices into a shared tensor table. Dispatch is a <code>switch</code> on the operator enum. There is no registration table and no function-pointer table. Each operator lives in its own translation unit, so with LTO and <code>--gc-sections</code> the linker drops everything your model does not use. The target is under 20 KB of Flash for a DNN-only model and under 50 KB for all 18 operators. Those are targets from the design documents, not measurements yet.</p>
+
+<p>The binary model format follows the same thinking. A 44-byte header, layer records, tensor records, then a 16-byte aligned weight blob. Weight tensors get a pointer straight into the blob. If the model lives in Flash, the weights are never copied to RAM.</p>
+
+<p>Tensors themselves are descriptors, not objects. About 80 bytes, no ownership, no reference counting. The data pointer can reference the arena, Flash or a user buffer. A descriptor carries its full quantisation metadata, which is what makes it possible to cut a model at a layer boundary and hand the intermediate tensor to another device without ambiguity. That matters to me because partitioned inference across devices is the other half of my research.</p>
+
+<h2>What is planned, and what is not done</h2>
+
+<p>Phases 1 to 5 are complete: foundation, DNN operators, RNN operators, Transformer operators and the graph runtime, with 118 unit tests across five suites, run under GCC and Clang with AddressSanitizer and UndefinedBehaviorSanitizer in CI. Phase 6 is optimisation. That means CMSIS-NN backends for Dense, Conv2D, depthwise Conv2D and pooling behind <code>#ifdef</code> guards, Helium/MVE kernels for Cortex-M55, NEON kernels for Cortex-A53 and A72, operator fusion and INT4 weight-only quantisation. Phase 7 is benchmarks on STM32H7 and platform testing.</p>
+
+<p>The honest limits are these. The only HAL today is the generic C fallback. The loader parses graphs, but a full model converter is still to come, so layer parameters are set up by the application. The KV cache struct exists but the attention kernel does not use it yet. Standalone BatchNorm is FP32 only; the INT8 route is to fold it into the preceding convolution. Nothing has been measured on target hardware yet, and I would rather the benchmark tables say "to be measured" than show something I cannot reproduce.</p>
+
+<p>What I can say is what the design guarantees. No malloc. No fragmentation. Bounded scratch. The same input gives the same output, every run. For the systems I work on, that is the property I needed first. Everything else is speed, and speed can be added behind the HAL without touching the contract.</p>
+]]></content:encoded>
+<category>EdgeNN</category>
+<category>TinyML</category>
+<category>Cortex-M</category>
+<category>C</category>
+</item>
+</channel>
+</rss>

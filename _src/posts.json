@@ -1,0 +1,49 @@
+[
+  {
+    "slug": "inference-first-rtos",
+    "title": "Why I'm building an RTOS where inference is the primary workload",
+    "date": "2026-10-18",
+    "summary": "What goes wrong when a neural network is bolted onto a scheduler built for control loops, and the design decisions behind SynapticOS.",
+    "tags": [
+      "SynapticOS",
+      "Zephyr",
+      "NPU",
+      "Embedded"
+    ]
+  },
+  {
+    "slug": "ten-patches-into-zephyr",
+    "title": "Ten patches into Zephyr: what I learned about upstream contribution",
+    "date": "2026-10-18",
+    "summary": "How I picked my first issues, what maintainers asked for, and the habits that stuck after ten pull requests to a large RTOS project.",
+    "tags": [
+      "Zephyr",
+      "Open source",
+      "Embedded"
+    ]
+  },
+  {
+    "slug": "splitting-an-llm-across-raspberry-pis",
+    "title": "What splitting an LLM across Raspberry Pis taught me",
+    "date": "2026-10-18",
+    "summary": "A small language model does not fit one edge device. Lessons from a WiFi testbed, a simulator and two papers on partitioning inference.",
+    "tags": [
+      "LLM",
+      "Distributed inference",
+      "Edge AI",
+      "Research"
+    ]
+  },
+  {
+    "slug": "zero-allocation-inference-on-cortex-m",
+    "title": "Zero-allocation inference on Cortex-M: the design decisions behind EdgeNN",
+    "date": "2026-10-18",
+    "summary": "Why a microcontroller inference library should never touch the heap, and how a static arena, INT8 arithmetic and a graph runtime fit in under 50 KB.",
+    "tags": [
+      "EdgeNN",
+      "TinyML",
+      "Cortex-M",
+      "C"
+    ]
+  }
+]

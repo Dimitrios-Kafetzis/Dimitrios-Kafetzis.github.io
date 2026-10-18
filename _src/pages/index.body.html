@@ -1,0 +1,171 @@
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow">Athens &middot; Hamburg</p>
+      <h1>Dimitrios Kafetzis</h1>
+      <p class="lede">Systems architect and researcher, working where embedded systems, networks and AI meet.</p>
+      <p class="body">I design the hardware and software of resource-constrained systems, from PCBs and RTOS firmware to inference distributed across edge devices. I lead the IoT department at <strong>DeepSea Technologies</strong>, am completing a PhD at <strong>AUEB</strong> on partitioning neural networks and LLMs for the edge, and build <strong>SynapticOS</strong>, an AI-native operating system for microcontrollers with on-die NPUs.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="publications.html">Publications</a>
+        <a class="btn" href="projects.html">Projects</a>
+        <a class="btn" href="about.html">About me</a>
+      </div>
+    </div>
+    <figure class="portrait">
+      <img src="assets/portrait.jpg" alt="Dimitrios Kafetzis giving a conference talk" width="720" height="951" fetchpriority="high">
+      <figcaption>WiOpt 2025 &middot; Link&ouml;ping</figcaption>
+    </figure>
+  </div>
+  <div class="facts">
+    <div class="wrap">
+      <div class="fact"><b class="num">15+</b><span>years across hardware and software</span></div>
+      <div class="fact"><b class="num">12</b><span>publications, 11 as first author</span></div>
+      <div class="fact"><b class="num">200</b><span>citations, h-index 5 (Scholar, Oct 2026)</span></div>
+      <div class="fact"><b class="num">5</b><span>patches merged upstream in Zephyr RTOS</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div><p class="eyebrow">Now</p><h2>What I'm working on</h2></div>
+    </div>
+    <div class="now-grid">
+      <article class="now">
+        <div class="label"><i></i>Industry</div>
+        <h3>IoT Department Director, DeepSea Technologies</h3>
+        <p>The embedded platform behind HyperPilot, DeepSea's DNV type-approved autonomous speed-control system: Yocto-based Linux distributions, wireless sensor networks on Zephyr and FreeRTOS, and compliance with IEC 61162, IEC 62923, IEC 60945 and IACS E26/E27.</p>
+      </article>
+      <article class="now">
+        <div class="label"><i class="amber"></i>Research</div>
+        <h3>PhD, defence planned for December 2026</h3>
+        <p>Partitioning DNNs and LLMs for low-latency inference across resource-constrained edge devices, at AUEB with Prof. Iordanis Koutsopoulos. Latest result: HeadSplit, IEEE SPAWC 2026.</p>
+      </article>
+      <article class="now">
+        <div class="label"><i></i>Open source</div>
+        <h3>SynapticOS</h3>
+        <p>An inference-first RTOS for Cortex-M33 microcontrollers with on-die NPUs, built on Zephyr for the NXP FRDM-MCXN947. Three architecture papers on arXiv; phase 5 of 6 complete.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div><p class="eyebrow">Selected work</p><h2>Systems I build and maintain</h2></div>
+      <a class="more" href="projects.html">All projects &rarr;</a>
+    </div>
+    <div class="cards">
+      <article class="card">
+        <div class="top"><span class="cat">Edge AI &middot; RTOS</span><span class="stars" data-repo="SynapticOS" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/SynapticOS">SynapticOS</a></h3>
+        <p>AI-native operating system for microcontrollers. Tensor-aware memory arena, NPU-aware scheduling and model lifecycle as OS services rather than application code.</p>
+        <ul class="tags"><li>C</li><li>Zephyr</li><li>Cortex-M33</li><li>eIQ Neutron NPU</li></ul>
+      </article>
+      <article class="card">
+        <div class="top"><span class="cat">Distributed LLM inference</span><span class="stars" data-repo="HeadSplit" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/HeadSplit">HeadSplit</a></h3>
+        <p>Attention-head partitioning and inter-layer speculation so every device runs each layer's attention in parallel. Reference code for the SPAWC 2026 paper, on Raspberry Pi clusters over WiFi.</p>
+        <ul class="tags"><li>PyTorch</li><li>RPC</li><li>Llama</li><li>IEEE SPAWC 2026</li></ul>
+      </article>
+      <article class="card">
+        <div class="top"><span class="cat">Edge AI &middot; Library</span><span class="stars" data-repo="EdgeNN" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/EdgeNN">EdgeNN</a></h3>
+        <p>Zero-allocation C11 inference library for ARM Cortex-M and Cortex-A: Dense, Conv, LSTM, GRU and Transformer layers with INT8 quantisation and a deterministic graph runtime.</p>
+        <ul class="tags"><li>C11</li><li>ARM</li><li>INT8</li><li>TinyML</li></ul>
+      </article>
+      <article class="card">
+        <div class="top"><span class="cat">Robotics</span><span class="stars" data-repo="Fieldproof" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/Fieldproof">Fieldproof</a></h3>
+        <p>Multi-domain emulation for ground, aerial and surface robots. Unmodified ROS 2 stacks run in containers against Gazebo, driven by scenario tests with pass/fail assertions.</p>
+        <ul class="tags"><li>ROS 2</li><li>Gazebo</li><li>PX4 / ArduPilot</li><li>Docker</li></ul>
+      </article>
+      <article class="card">
+        <div class="top"><span class="cat">Maritime</span><span class="stars" data-repo="NMEA_Simulator_X" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/NMEA_Simulator_X">NMEA Simulator X</a></h3>
+        <p>Cross-platform NMEA 0183 and Signal K vessel data simulator. Streams position, heading, depth, wind, engine and AIS data over serial, TCP, UDP and WebSocket.</p>
+        <ul class="tags"><li>C++20</li><li>Qt 6</li><li>NMEA 0183</li><li>Signal K</li></ul>
+      </article>
+      <article class="card">
+        <div class="top"><span class="cat">Sensor fusion</span><span class="stars" data-repo="axon" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/axon">axon</a></h3>
+        <p>Header-only C++23 state-estimation framework: EKF, UKF and complementary filters behind one concept, with Mahalanobis outlier gating and compile-time sensor composition.</p>
+        <ul class="tags"><li>C++23</li><li>EKF / UKF</li><li>Header-only</li></ul>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div><p class="eyebrow">Writing</p><h2>Latest from the blog</h2></div>
+      <a class="more" href="blog.html">All articles &rarr;</a>
+    </div>
+    <div class="post-list">
+<!-- LATEST_POSTS -->
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div><p class="eyebrow">Research</p><h2>Recent publications</h2></div>
+      <a class="more" href="publications.html">All publications &rarr;</a>
+    </div>
+    <div class="pub-list">
+      <article class="pub">
+        <div class="venue"><span class="chip">IEEE SPAWC 2026</span></div>
+        <h3>HeadSplit: Attention Head Partitioning and Inter-Layer Speculation for Distributed Inference at the Edge</h3>
+        <p class="authors"><b>D. Kafetzis</b>, I. Koutsopoulos</p>
+        <div class="links"><a href="https://github.com/Dimitrios-Kafetzis/HeadSplit">Code</a></div>
+      </article>
+      <article class="pub">
+        <div class="venue"><span class="chip">arXiv 2026</span></div>
+        <h3>SynapticOS: An Inference-First Runtime Architecture for Neural Processing Units on Resource-Constrained Microcontrollers</h3>
+        <p class="authors"><b>D. Kafetzis</b></p>
+        <div class="links"><a href="https://arxiv.org/abs/2607.12606">arXiv</a><a href="https://github.com/Dimitrios-Kafetzis/SynapticOS">Code</a></div>
+      </article>
+      <article class="pub">
+        <div class="venue"><span class="chip">IEEE/IFIP WiOpt 2025</span></div>
+        <h3>Large Language Model Partitioning for Low-Latency Inference at the Edge</h3>
+        <p class="authors"><b>D. Kafetzis</b>, R. Khalili, I. Koutsopoulos</p>
+        <div class="links"><a href="https://arxiv.org/abs/2505.02533">arXiv</a><a href="LLM_Partitioning_Edge_WiOpt_2025.pdf">PDF</a><a href="https://github.com/Dimitrios-Kafetzis/Distributed-Transformer-Inference-Simulator">Code</a></div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <div><p class="eyebrow">Experience</p><h2>Where I've been, in brief</h2></div>
+      <a class="more" href="about.html">Full timeline &rarr;</a>
+    </div>
+    <div class="timeline">
+      <div class="entry">
+        <div class="when"><b>2023 &ndash; now</b>Athens</div>
+        <div><h3>IoT Department Director &middot; Embedded Systems Architect</h3><p class="org">DeepSea Technologies (Nabtesco Group)</p></div>
+      </div>
+      <div class="entry">
+        <div class="when"><b>2019 &ndash; now</b>Athens</div>
+        <div><h3>Lead Research Engineer &middot; Teaching Fellow</h3><p class="org">Athens University of Economics and Business, Research Center and Department of Informatics</p></div>
+      </div>
+      <div class="entry">
+        <div class="when"><b>2017 &ndash; 2019</b>Athens</div>
+        <div><h3>R&amp;D Department Director &middot; Systems Architect</h3><p class="org">Plaython Inc.</p></div>
+      </div>
+      <div class="entry">
+        <div class="when"><b>2014 &ndash; 2016</b>Athens</div>
+        <div><h3>Embedded Systems &amp; Software Design Engineer &middot; Project Manager</h3><p class="org">Prisma Electronics SA</p></div>
+      </div>
+      <div class="entry">
+        <div class="when"><b>2012 &ndash; 2014</b>United Kingdom</div>
+        <div><h3>Electronics Design Engineer</h3><p class="org">University of Leeds, I3S Ultrasound Group &middot; deSoutter Medical Group</p></div>
+      </div>
+    </div>
+  </div>
+</section>

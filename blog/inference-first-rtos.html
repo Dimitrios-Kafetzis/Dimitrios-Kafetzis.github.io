@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Why I&#x27;m building an RTOS where inference is the primary workload · Dimitrios Kafetzis</title>
+<meta name="description" content="What goes wrong when a neural network is bolted onto a scheduler built for control loops, and the design decisions behind SynapticOS.">
+<link rel="canonical" href="https://dimitrios-kafetzis.github.io/blog/inference-first-rtos.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Why I&#x27;m building an RTOS where inference is the primary workload · Dimitrios Kafetzis">
+<meta property="og:description" content="What goes wrong when a neural network is bolted onto a scheduler built for control loops, and the design decisions behind SynapticOS.">
+<meta property="og:url" content="https://dimitrios-kafetzis.github.io/blog/inference-first-rtos.html">
+<meta property="og:image" content="https://dimitrios-kafetzis.github.io/assets/portrait.jpg">
+<meta property="og:site_name" content="Dimitrios Kafetzis">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#f4f6f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)">
+<link rel="alternate" type="application/rss+xml" title="Dimitrios Kafetzis · Blog" href="https://dimitrios-kafetzis.github.io/feed.xml">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23121a2b'/%3E%3Ctext x='32' y='41' text-anchor='middle' font-family='IBM Plex Mono,Menlo,monospace' font-size='26' font-weight='600' fill='%23f4f6f9'%3EDK%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="../assets/style.css">
+<script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<meta property="article:published_time" content="2026-10-18">
+<meta property="article:author" content="Dimitrios Kafetzis">
+</head>
+<body>
+<header class="site-header">
+  <nav class="nav wrap" aria-label="Main">
+    <a class="brand" href="../index.html"><span class="mark" aria-hidden="true">DK</span><span>Dimitrios Kafetzis</span></a>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="../index.html">Home</a></li>
+      <li><a href="../about.html">About</a></li>
+      <li><a href="../projects.html">Projects</a></li>
+      <li><a href="../publications.html">Publications</a></li>
+      <li><a href="../blog.html" aria-current="page">Blog</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="icon-btn hide-sm" href="https://github.com/Dimitrios-Kafetzis" aria-label="GitHub" title="GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
+      <a class="icon-btn hide-sm" href="https://scholar.google.com/citations?user=3RLgkhwAAAAJ&amp;hl=en" aria-label="Google Scholar" title="Google Scholar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5.242 13.769L0 9.5 12 0l12 9.5-5.242 4.269C17.548 11.249 14.978 9.5 12 9.5c-2.977 0-5.548 1.748-6.758 4.269zM12 10a7 7 0 1 0 0 14 7 7 0 0 0 0-14z"/></svg></a>
+      <a class="icon-btn hide-sm" href="https://linkedin.com/in/dimitrios-kafetzis" aria-label="LinkedIn" title="LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+      <a class="icon-btn hide-sm" href="../feed.xml" aria-label="RSS feed" title="RSS feed"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19.199 24C19.199 13.467 10.533 4.8 0 4.8V0c13.165 0 24 10.835 24 24h-4.801zM3.291 17.415a3.3 3.3 0 0 1 3.293 3.295A3.303 3.303 0 0 1 3.283 24C1.47 24 0 22.526 0 20.71s1.475-3.294 3.291-3.295zM15.909 24h-4.665c0-6.169-5.075-11.245-11.244-11.245V8.09c8.727 0 15.909 7.184 15.909 15.91z"/></svg></a>
+      <button class="icon-btn" id="theme-toggle" type="button" aria-label="Switch theme"><svg class="sun" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round" hidden><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg><svg class="moon" viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+      <button class="icon-btn menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Menu"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+    </div>
+  </nav>
+</header>
+<main>
+<article class="article wrap">
+  <header class="article-head">
+    <p class="eyebrow"><a href="../blog.html">Blog</a></p>
+    <h1>Why I&#x27;m building an RTOS where inference is the primary workload</h1>
+    <p class="lede">What goes wrong when a neural network is bolted onto a scheduler built for control loops, and the design decisions behind SynapticOS.</p>
+    <p class="meta mono"><time datetime="2026-10-18">18 October 2026</time> &middot; 6 min read</p>
+    <ul class="tags"><li>SynapticOS</li><li>Zephyr</li><li>NPU</li><li>Embedded</li></ul>
+  </header>
+  <div class="article-body">
+<h2>What goes wrong when inference is a library</h2>
+
+<p>Most microcontroller AI stacks look the same. An RTOS schedules threads. A TensorFlow Lite Micro interpreter sits inside one of them. The NPU driver sits under that. Inference is an application concern. The OS does not know it is happening.</p>
+
+<p>This works until you have more than one model, a deadline, or a second core. Then the seams show. The heap fragments under tensors that are allocated and freed in lockstep every frame. The NPU sits idle while the CPU copies a frame that DMA could have landed. Nobody owns accelerator state, so two threads can both believe they hold the NPU. A model update is a flash write the scheduler knows nothing about. Every project solves these again, differently, in application code.</p>
+
+<p>I started <a href="https://github.com/Dimitrios-Kafetzis/SynapticOS">SynapticOS</a> to find out what changes when the inference pipeline is the thing the OS is built around. It runs on Zephyr 3.7 and targets the NXP FRDM-MCXN947: two Cortex-M33 cores at 150 MHz, an eIQ Neutron NPU, 512 KB of SRAM and 2 MB of flash, on a board that costs about fifteen dollars. It is Apache 2.0. The same code builds for the board and for qemu_cortex_m3, so every change passes the test suite in emulation before it touches hardware.</p>
+
+<h2>Memory that matches how a network allocates</h2>
+
+<p>The first decision was to stop using a general heap for tensors. A network allocates in a very regular pattern. Weights live for the whole session. Activations live for one frame. Scratch lives for one layer. A bump allocator fits that pattern exactly, and it cannot fragment.</p>
+
+<p>The arena has a persistent region growing up from the base, an ephemeral region after it, and a scratch pool at the top:</p>
+
+<pre><code>[base ... persistent ... ephemeral ... | scratch_pool ... base+total]</code></pre>
+
+<p>Every tensor pointer is 16-byte aligned because the NPU and the DMA engine need it. An allocation costs about 154 cycles regardless of tensor size. Between frames the ephemeral pointer is reset to the persistent boundary. The face-detection sample does this every frame, and its arena peak returns to zero each time. In the 11,106-job soak test at the end of Phase 5, the arena high-water mark did not move once.</p>
+
+<p>Phase 5 added a planner on top. For DAG models with skip connections, buffer lifetimes run from the defining layer to the last consumer, and a first-fit pass lays them into one plan area. On the 8-layer demo DAG the planned peak is 43 percent below the all-live baseline, and the plan takes 18 microseconds on the board. The plan is deterministic, so a suspended job can replan on resume and get identical offsets.</p>
+
+<h2>The job, not the thread, is the unit of scheduling</h2>
+
+<p>Zephyr threads still exist underneath, but the API submits inference jobs. A job carries a priority class (realtime, normal, best-effort), an optional deadline, and a preemptible flag. A dedicated scheduler thread dispatches by priority first, then earliest deadline within a priority, then FIFO. Deadline misses are counted and visible from the shell.</p>
+
+<p>The reason to schedule jobs instead of threads is layer boundaries. An NPU runs one layer at a time and hands control back between layers. That is a natural preemption point that a thread scheduler cannot see. In SynapticOS a preemptible layered job checks for queued higher-priority work between layers, parks its context in a suspension slot, and resumes bit-exactly later. On the board the context save measures 10 microseconds. That number carries a label: it was measured with the software NPU stub and synthetic layered models, because the Neutron SDK does not expose per-layer invocation. Real preemption granularity on Neutron will be per delegated segment.</p>
+
+<p>The pipeline is an OS object too. It is drawn from a static pool, validated against a canonical pre-process, model, post-process order, and its stage buffers are sized from tensor geometry at build time. There is no heap on the inference path.</p>
+
+<h2>The second core is a client, and the model is a file with a rollback</h2>
+
+<p>The MCXN947's second core has no FPU, no DSP extension, no TrustZone and no MPU. I treated that as a design input. CPU0 owns the models, the NPU and the scheduler. CPU1 runs the application and reaches inference through a message-based service over shared SRAM. The transport is two lock-free single-producer single-consumer rings, one writer per index, ordered by data memory barriers alone, because the platform has no cross-core atomics worth trusting. Round trips measure 15 microseconds typical and 81 worst case on the board. Tensors stage zero-copy in a shared slot; a 27 KB frame cannot exist twice in 64 KB of RAM. Protection is one-directional. CPU0's MPU guards CPU1's RAM and aborts only the offending thread, but nothing can guard the other way.</p>
+
+<p>Models are persistent objects in flash. A ping-pong registry pair with a generation counter and CRC32 gives atomic, power-loss-safe commits, and the newest valid copy wins at boot. Two 440 KB model slots are A/B: whichever slot the active registry does not reference is the staging target for the next over-the-air update. Every load passes a CRC gate. Registry commits take 1.9 to 2.6 ms and the boot scan 23 to 189 microseconds, measured on the board. A reset injected at 81 percent of a raw transfer left the store intact and the old model serving after reboot.</p>
+
+<h2>What the board taught me</h2>
+
+<p>QEMU passes everything. The board does not, and that is the point of owning one.</p>
+
+<p>Releasing CPU1 into erased flash wedges the whole chip, debug port included. Erased flash raises ECC bus errors, and CPU1's vector fetch stalls the flash system CPU0 executes from. Recovery is ISP only. The runtime now blank-checks the bank through the ROM API before releasing the core.</p>
+
+<p>A single ROM-API erase spanning 55 sectors wedged the chip the same way, while every one-sector erase before and after was fine. Erases are now sector-wise with 1 ms breathers.</p>
+
+<p>A placeholder limit became a field bug. The stub NPU HAL had an arbitrary 256 KB cap, and it refused a valid, stored, activated 432 KB model. Rollback restored service in one shell command, an involuntary demo of why rollback exists.</p>
+
+<p>Zephyr 3.7's eDMA driver never issues the software START that memory-to-memory transfers need on eDMA v4. Secure-alias pointers bus-error inside the DMA. The tensor arena itself turned out not to be DMA-reachable under the current bus security attributes, and because the SoC shares one no-error IRQ, a faulted transfer is a silent timeout. The ingest benchmark moved to DMA-reachable static buffers, where DMA lands 8 KB frames at 131 microseconds each against 460 for a CPU copy. Arena DMA visibility is still open.</p>
+
+<p>And a preempting submitter must outrank the scheduler thread, or it can never inject mid-job. QEMU's cooperative test threads had hidden that completely.</p>
+
+<p>The README records each of these, with the miss next to the fix. The PowerQuad DSP offload reaches 3.03x on a 256-point FFT and 1.72x on a Q15 matmul against hard-FPU software kernels, short of the 10x the plan asked for. The 500 KB in 10 seconds OTA target cannot be met at 115200 baud; the transport already runs at 98.7 percent of line rate, so the fix is a faster link, not more software.</p>
+
+<h2>What is still open</h2>
+
+<p>The biggest caveat is the stub label. Through Phase 5, every inference latency was measured on a deterministic software NPU stub, because the Neutron driver ships as closed binaries under NXP's licence and cannot be vendored into an Apache 2.0 tree. Phase 6 integrates it as an optional module, and the first real Neutron inference is live: a 32x32x3 INT8 classifier at 6.6 ms when resident, 17.1 ms including the on-demand swap the single-residency NPU needs. The stub-labelled figures stay labelled until a real 96x96 model is converted.</p>
+
+<p>Also open: arena DMA visibility, a quiesce that drains only the running job and not suspended ones, multi-model NPU residency, power management, and the real camera path. The three arXiv papers (<a href="https://arxiv.org/abs/2607.12606">2607.12606</a>, <a href="https://arxiv.org/abs/2607.12614">2607.12614</a> and <a href="https://arxiv.org/abs/2607.12620">2607.12620</a>) document Phases 1 through 3 with the measured numbers and the deviations from plan. If you work on MCU inference, I would like to know what breaks on your board.</p>
+
+  </div>
+  <footer class="article-foot">
+    <div class="share" aria-label="Share this article"><span class="share-label">Share</span><a class="share-btn" href="https://twitter.com/intent/tweet?text=Why%20I%27m%20building%20an%20RTOS%20where%20inference%20is%20the%20primary%20workload%20by%20Dimitrios%20Kafetzis&amp;url=https%3A%2F%2Fdimitrios-kafetzis.github.io%2Fblog%2Finference-first-rtos.html" target="_blank" rel="noopener" aria-label="Share on X" title="Share on X"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.901 1.153h3.68l-8.04 9.19L24 22.846h-7.406l-5.8-7.584-6.638 7.584H.474l8.6-9.83L0 1.154h7.594l5.243 6.932ZM17.61 20.644h2.039L6.486 3.24H4.298Z"/></svg></a><a class="share-btn" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fdimitrios-kafetzis.github.io%2Fblog%2Finference-first-rtos.html" target="_blank" rel="noopener" aria-label="Share on LinkedIn" title="Share on LinkedIn"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a><a class="share-btn" href="https://bsky.app/intent/compose?text=Why%20I%27m%20building%20an%20RTOS%20where%20inference%20is%20the%20primary%20workload%20by%20Dimitrios%20Kafetzis%20https%3A%2F%2Fdimitrios-kafetzis.github.io%2Fblog%2Finference-first-rtos.html" target="_blank" rel="noopener" aria-label="Share on Bluesky" title="Share on Bluesky"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364.136-.02.275-.039.415-.056-.138.022-.276.04-.415.056-3.912.58-7.387 2.005-2.83 7.078 5.013 5.19 6.87-1.113 7.823-4.308.953 3.195 2.05 9.271 7.733 4.308 4.267-4.308 1.172-6.498-2.74-7.078a8.741 8.741 0 0 1-.415-.056c.14.017.279.036.415.056 2.67.297 5.568-.628 6.383-3.364.246-.828.624-5.79.624-6.478 0-.69-.139-1.861-.902-2.206-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8Z"/></svg></a><a class="share-btn" href="https://news.ycombinator.com/submitlink?u=https%3A%2F%2Fdimitrios-kafetzis.github.io%2Fblog%2Finference-first-rtos.html&amp;t=Why%20I%27m%20building%20an%20RTOS%20where%20inference%20is%20the%20primary%20workload" target="_blank" rel="noopener" aria-label="Submit to Hacker News" title="Submit to Hacker News"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 24V0h24v24H0zM6.951 5.896l4.112 7.708v5.064h1.583v-4.972l4.148-7.799h-1.749l-2.457 4.875c-.372.745-.688 1.434-.688 1.434s-.297-.708-.651-1.434L8.831 5.896h-1.88z"/></svg></a><a class="share-btn" href="https://www.reddit.com/submit?url=https%3A%2F%2Fdimitrios-kafetzis.github.io%2Fblog%2Finference-first-rtos.html&amp;title=Why%20I%27m%20building%20an%20RTOS%20where%20inference%20is%20the%20primary%20workload" target="_blank" rel="noopener" aria-label="Share on Reddit" title="Share on Reddit"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/></svg></a><a class="share-btn" href="mailto:?subject=Why%20I%27m%20building%20an%20RTOS%20where%20inference%20is%20the%20primary%20workload&amp;body=https%3A%2F%2Fdimitrios-kafetzis.github.io%2Fblog%2Finference-first-rtos.html" target="_blank" rel="noopener" aria-label="Share by email" title="Share by email"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></a><button class="share-btn" type="button" data-copy="https://dimitrios-kafetzis.github.io/blog/inference-first-rtos.html" data-copy-label aria-label="Copy link" title="Copy link"><svg viewBox="0 0 24 24" aria-hidden="true" style="fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button></div>
+    <p class="muted">Written by Dimitrios Kafetzis. Corrections and questions are welcome at <a href="mailto:dimitrioskafetzis@gmail.com">dimitrioskafetzis@gmail.com</a>. Subscribe to new articles with the <a href="../feed.xml">RSS feed</a>.</p>
+  </footer>
+</article>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../index.html"><span class="mark" aria-hidden="true">DK</span><span>Dimitrios Kafetzis</span></a>
+      <p class="tagline" style="margin-top:12px">Systems architect and researcher. Embedded systems, edge AI and networks, from the PCB to the model.</p>
+      <div class="contact-line"><code>dimitrioskafetzis@gmail.com</code><button class="copy-btn" type="button" data-copy="dimitrioskafetzis@gmail.com">Copy</button></div>
+    </div>
+    <div>
+      <h3>Site</h3>
+      <ul>
+        <li><a href="../index.html">Home</a></li>
+        <li><a href="../about.html">About</a></li>
+        <li><a href="../projects.html">Projects</a></li>
+        <li><a href="../publications.html">Publications</a></li>
+        <li><a href="../blog.html">Blog</a></li>
+        <li><a href="../feed.xml">RSS feed</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Elsewhere</h3>
+      <ul>
+        <li><a href="https://github.com/Dimitrios-Kafetzis">GitHub</a></li>
+        <li><a href="https://scholar.google.com/citations?user=3RLgkhwAAAAJ&amp;hl=en">Google Scholar</a></li>
+        <li><a href="https://www.researchgate.net/profile/Dimitrios_Kafetzis3">ResearchGate</a></li>
+        <li><a href="https://arxiv.org/search/?query=Kafetzis%2C+Dimitrios&amp;searchtype=author">arXiv</a></li>
+        <li><a href="https://linkedin.com/in/dimitrios-kafetzis">LinkedIn</a></li>
+        <li><a href="https://synapticos.io/">SynapticOS</a></li>
+      </ul>
+    </div>
+    <div class="legal"><span>&copy; <span id="year">2026</span> Dimitrios Kafetzis</span><span>Athens &middot; Hamburg</span></div>
+  </div>
+</footer>
+<script src="../assets/site.js"></script>
+</body>
+</html>
