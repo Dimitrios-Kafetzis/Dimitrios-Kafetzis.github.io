@@ -12,6 +12,12 @@
   --accent-soft: rgba(11, 122, 138, 0.10);
   --amber: #b97c08;
   --grid: rgba(18, 26, 43, 0.07);
+  --fig-1: #0f8fa6;
+  --fig-2: #c47a0a;
+  --fig-3: #6250d6;
+  --fig-1-soft: rgba(15, 143, 166, 0.14);
+  --fig-2-soft: rgba(196, 122, 10, 0.16);
+  --fig-3-soft: rgba(98, 80, 214, 0.14);
   --shadow: 0 1px 2px rgba(18, 26, 43, 0.06), 0 8px 24px rgba(18, 26, 43, 0.06);
   --font-sans: "IBM Plex Sans", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
@@ -32,6 +38,12 @@
     --accent-soft: rgba(53, 195, 212, 0.12);
     --amber: #f0b641;
     --grid: rgba(231, 236, 244, 0.06);
+    --fig-1: #1f9fb0;
+    --fig-2: #b8842a;
+    --fig-3: #8a7fe6;
+    --fig-1-soft: rgba(31, 159, 176, 0.22);
+    --fig-2-soft: rgba(184, 132, 42, 0.24);
+    --fig-3-soft: rgba(138, 127, 230, 0.24);
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
     color-scheme: dark;
   }
@@ -48,6 +60,12 @@
   --accent-soft: rgba(53, 195, 212, 0.12);
   --amber: #f0b641;
   --grid: rgba(231, 236, 244, 0.06);
+  --fig-1: #1f9fb0;
+  --fig-2: #b8842a;
+  --fig-3: #8a7fe6;
+  --fig-1-soft: rgba(31, 159, 176, 0.22);
+  --fig-2-soft: rgba(184, 132, 42, 0.24);
+  --fig-3-soft: rgba(138, 127, 230, 0.24);
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
   color-scheme: dark;
 }
@@ -195,7 +213,7 @@ p + p { margin-top: 0.9em; }
 @media (max-width: 640px) { .section-head { flex-direction: column; align-items: flex-start; gap: 8px; } .section { padding-block: 48px; } }
 
 /* Now */
-.now-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.now-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
 .now {
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 22px;
   display: flex; flex-direction: column; gap: 8px; min-width: 0;
@@ -378,3 +396,9 @@ table.projects td.role { color: var(--muted); min-width: 260px; }
 .share-btn:hover { color: var(--fg); border-color: var(--muted); text-decoration: none; }
 .share-btn svg { width: 17px; height: 17px; fill: currentColor; }
 .share-btn.done { color: var(--accent-ink); border-color: var(--accent); }
+
+/* Figures in articles */
+.article-body figure.fig { margin: 2em 0; }
+.article-body figure.fig svg { display: block; width: 100%; height: auto; max-width: 100%; font-family: var(--font-mono); color: var(--fg); }
+.article-body figure.fig figcaption { font-family: var(--font-sans); font-size: 0.9rem; color: var(--muted); margin-top: 12px; max-width: 70ch; line-height: 1.5; }
+.article-body figure.fig figcaption b { color: var(--fg); font-weight: 600; }

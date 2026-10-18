@@ -25,6 +25,8 @@ void   edgenn_arena_restore(edgenn_arena_t *arena, size_t state);</code></pre>
 
 <p>The arena API also includes a ping-pong manager: two scratch regions that alternate roles as input and output between layers. The consumed input region is reset and becomes the next output. Peak activation memory is then two times the largest layer, instead of the sum of every layer. I should be honest here. The ping-pong buffer is implemented and tested, but the current graph executor uses the simpler save and restore scheme on a single scratch arena. Wiring ping-pong into the executor is on the list.</p>
 
+<figure class="fig"><!-- fig:edgenn-arena --><figcaption><b>Scratch usage across a forward pass.</b> Every operator restores the arena before it returns, so usage falls back to the activation baseline after each layer. The reserved SRAM is the highest single peak, not the sum of all layers.</figcaption></figure>
+
 <p>The peak counter matters more than it looks. You run your model once on the host, read <code>edgenn_arena_peak()</code>, and you know exactly how much SRAM to reserve on the target. No guessing, no padding by a factor of two.</p>
 
 <h2>INT8 first, floats only at load time</h2>
@@ -32,6 +34,8 @@ void   edgenn_arena_restore(edgenn_arena_t *arena, size_t state);</code></pre>
 <p>Many Cortex-M parts have no FPU, and the Cortex-M4's optional FPU is single precision only. So I made INT8 the primary path and FP32 the reference path, rather than the reverse.</p>
 
 <p>The scheme is symmetric INT8 for weights, with the zero point fixed at zero. That removes a subtraction from the inner loop. Weights are quantised per output channel for Dense and Conv. Activations are per tensor. Accumulation is INT32, with INT32 biases. The step that usually brings floats back in is requantisation: scaling the INT32 accumulator down to INT8. EdgeNN precomputes a fixed-point multiplier and shift at load time using <code>frexpf</code>, so the runtime does one multiply-high and one shift. On Cortex-M7 that compiles down to SMMUL plus an arithmetic shift.</p>
+
+<figure class="fig"><!-- fig:edgenn-int8 --><figcaption><b>The integer path.</b> Floats appear only at load time, when the multiplier and shift are derived with <code>frexpf</code> and the activation tables are built. From the accumulator to the output byte, everything is integer arithmetic.</figcaption></figure>
 
 <p>The convention in the codebase is simple to state: no <code>float</code> in the INT8 inference path. Floats are allowed when the model loads, when scales are converted to multipliers and when lookup tables are built. They are not allowed inside a kernel.</p>
 
@@ -46,6 +50,8 @@ void   edgenn_arena_restore(edgenn_arena_t *arena, size_t state);</code></pre>
 <p>EdgeNN sits in between. A model is a linear array of layer descriptors, each holding an operator type, a params pointer and indices into a shared tensor table. Dispatch is a <code>switch</code> on the operator enum. There is no registration table and no function-pointer table. Each operator lives in its own translation unit, so with LTO and <code>--gc-sections</code> the linker drops everything your model does not use. The target is under 20 KB of Flash for a DNN-only model and under 50 KB for all 18 operators. Those are targets from the design documents, not measurements yet.</p>
 
 <p>The binary model format follows the same thinking. A 44-byte header, layer records, tensor records, then a 16-byte aligned weight blob. Weight tensors get a pointer straight into the blob. If the model lives in Flash, the weights are never copied to RAM.</p>
+
+<figure class="fig"><!-- fig:edgenn-format --><figcaption><b>The model file.</b> Records describe the graph; the weight blob is mapped in place. A tensor record's data_offset becomes a pointer into flash, so loading a model costs a header parse and no copies.</figcaption></figure>
 
 <p>Tensors themselves are descriptors, not objects. About 80 bytes, no ownership, no reference counting. The data pointer can reference the arena, Flash or a user buffer. A descriptor carries its full quantisation metadata, which is what makes it possible to cut a model at a layer boundary and hand the intermediate tensor to another device without ambiguity. That matters to me because partitioned inference across devices is the other half of my research.</p>
 

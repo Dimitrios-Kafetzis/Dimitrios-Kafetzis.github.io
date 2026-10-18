@@ -152,7 +152,8 @@ def share_row(url, title):
 
 
 def reading_time(body_html):
-    words = len(re.sub(r"<[^>]+>", " ", body_html).split())
+    prose = re.sub(r"<svg.*?</svg>", " ", body_html, flags=re.S)
+    words = len(re.sub(r"<[^>]+>", " ", prose).split())
     return max(1, round(words / 220))
 
 
@@ -180,8 +181,15 @@ def main():
     posts.sort(key=lambda p: p["date"], reverse=True)
 
     # Posts
+    def inline_figures(body):
+        def repl(m):
+            svg = (SRC / "figures" / f"{m.group(1)}.svg").read_text(encoding="utf-8")
+            return svg
+        return re.sub(r"<!--\s*fig:([a-z0-9-]+)\s*-->", repl, body)
+
     for post in posts:
         body = (SRC / "posts" / f"{post['slug']}.html").read_text(encoding="utf-8")
+        body = inline_figures(body)
         post["minutes"] = reading_time(body)
         post["body"] = body
         url = f"{BASE}blog/{post['slug']}.html"

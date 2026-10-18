@@ -4,6 +4,8 @@
 
 <p>The timing shaped the work. In early October 2026 Zephyr 4.5 was in release candidates, with the hard freeze on 12 October. Between RC1 and the release only bug fixes merge. So I went looking for bugs I could reproduce on my desk, not features I wanted to add. I opened the first four pull requests on 4 October.</p>
 
+<figure class="fig"><!-- fig:zephyr-timeline --><figcaption><b>Ten pull requests in two weeks.</b> Opened between 4 and 11 October 2026; five merged between 8 and 14 October, the rest still waiting for review on 18 October. The dashed line is the 4.5 hard freeze, after which only bug fixes merge.</figcaption></figure>
+
 <h2>How I picked the first issues</h2>
 
 <p>I wrote down four conditions before I touched any code. The issue is open, and nobody has a PR for it or has said in the last two weeks that they are on it. I can reproduce or verify it here, on the board, on native_sim or in QEMU. The likely fix is small and local. And it can merge in the current phase of the release cycle. Then I ranked by what could merge now and what I could test on hardware that few others have.</p>
@@ -11,6 +13,8 @@
 <p>The best source turned out to be NXP's own CI engineers. They file failures on the FRDM-MCXN947 and its sibling boards every week. A contributor who can reproduce those on real silicon and send a small tested fix is rare, and those reports welcomed one. The second source was abandoned work. Issue #114976 had a fix in a PR its author had closed. I picked the idea up, added a unit test that fails without the fix, and opened <a href="https://github.com/zephyrproject-rtos/zephyr/pull/121226">#121226</a>.</p>
 
 <p>Most candidates failed the first condition: in two days of scanning I dropped dozens because the reporter already had a PR up. Before coding I wrote a root-cause note, marked each statement verified or inferred, and posted the cause and reproduction on the issue before opening the PR.</p>
+
+<figure class="fig"><!-- fig:zephyr-loop --><figcaption><b>The loop each target goes through.</b> The expensive steps are before the pull request: a root-cause note that separates what was verified from what was inferred, and a test matrix that states what did not run.</figcaption></figure>
 
 <h2>The commit message lesson</h2>
 
@@ -21,6 +25,8 @@
 <h2>The devicetree lesson</h2>
 
 <p><a href="https://github.com/zephyrproject-rtos/zephyr/pull/121224">#121224</a> fixes a 4.5 regression where MCUboot could not find its slot on the FRDM-MCXN947. A refactor had moved a secure-alias <code>ranges</code> from the flash controller to the flash node, and a node's <code>ranges</code> only translates its children, so every partition landed at an address 0x10000000 too large. My fix moved the controller under <code>/soc</code>, as a sibling SoC had done, and NXP's test engineer confirmed it on their board. Then the reviewer NXP pointed to as the expert on mapped partitions requested changes: "missing ranges" on one node, and an empty <code>ranges;</code> that was "not valid, use the proper ranges with values". After the second version the reviewer found the secure and non-secure files "very confusing", and that the controller's <code>ranges</code> must also cover the UID node. An NXP maintainer sketched one <code>ranges</code> entry per child. The first reviewer answered "that'll work". I pushed a third version on 16 October.</p>
+
+<figure class="fig"><!-- fig:zephyr-ranges --><figcaption><b>Why the partitions moved.</b> A <code>ranges</code> property translates the addresses of its own children only. With the secure-alias translation on the flash node, the partitions underneath inherited the 0x10000000 offset. Moving the controller under <code>/soc</code> with one entry per child restores the secure flash base, and the generated devicetree is byte-identical across all fifteen MCXN targets.</figcaption></figure>
 
 <p>For each version I checked that the generated devicetree was identical on all fifteen MCXN targets and re-ran the MCUboot, flash and hwinfo tests on the board. The code had worked since version one. What changed was how clearly the devicetree said what it meant. When the two reviewers pulled in different directions, I tried the alternative layout, posted a table of the resulting addresses, and offered to rework. As I write this it has one approval and waits for a re-review.</p>
 

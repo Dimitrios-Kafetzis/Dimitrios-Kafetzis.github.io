@@ -12,7 +12,7 @@
 
 <p>The arena has a persistent region growing up from the base, an ephemeral region after it, and a scratch pool at the top:</p>
 
-<pre><code>[base ... persistent ... ephemeral ... | scratch_pool ... base+total]</code></pre>
+<figure class="fig"><!-- fig:syn-arena --><figcaption><b>The tensor arena.</b> Weights grow from the base and live for the session, activations follow and live for one frame, scratch sits at the top and lives for one layer. Resetting the ephemeral pointer is a single store, so a streaming workload has a constant footprint.</figcaption></figure>
 
 <p>Every tensor pointer is 16-byte aligned because the NPU and the DMA engine need it. An allocation costs about 154 cycles regardless of tensor size. Between frames the ephemeral pointer is reset to the persistent boundary. The face-detection sample does this every frame, and its arena peak returns to zero each time. In the 11,106-job soak test at the end of Phase 5, the arena high-water mark did not move once.</p>
 
@@ -24,11 +24,15 @@
 
 <p>The reason to schedule jobs instead of threads is layer boundaries. An NPU runs one layer at a time and hands control back between layers. That is a natural preemption point that a thread scheduler cannot see. In SynapticOS a preemptible layered job checks for queued higher-priority work between layers, parks its context in a suspension slot, and resumes bit-exactly later. On the board the context save measures 10 microseconds. That number carries a label: it was measured with the software NPU stub and synthetic layered models, because the Neutron SDK does not expose per-layer invocation. Real preemption granularity on Neutron will be per delegated segment.</p>
 
+<figure class="fig"><!-- fig:syn-sched --><figcaption><b>Layer-boundary preemption.</b> A preemptible job checks for higher-priority work between layers, parks its context in a suspension slot and resumes bit-exactly. The 10 microsecond context save was measured with the software NPU stub.</figcaption></figure>
+
 <p>The pipeline is an OS object too. It is drawn from a static pool, validated against a canonical pre-process, model, post-process order, and its stage buffers are sized from tensor geometry at build time. There is no heap on the inference path.</p>
 
 <h2>The second core is a client, and the model is a file with a rollback</h2>
 
 <p>The MCXN947's second core has no FPU, no DSP extension, no TrustZone and no MPU. I treated that as a design input. CPU0 owns the models, the NPU and the scheduler. CPU1 runs the application and reaches inference through a message-based service over shared SRAM. The transport is two lock-free single-producer single-consumer rings, one writer per index, ordered by data memory barriers alone, because the platform has no cross-core atomics worth trusting. Round trips measure 15 microseconds typical and 81 worst case on the board. Tensors stage zero-copy in a shared slot; a 27 KB frame cannot exist twice in 64 KB of RAM. Protection is one-directional. CPU0's MPU guards CPU1's RAM and aborts only the offending thread, but nothing can guard the other way.</p>
+
+<figure class="fig"><!-- fig:syn-dualcore --><figcaption><b>Inference as a cross-core service.</b> CPU1 never touches the NPU or the models. It writes a request into a single-producer single-consumer ring, stages the tensor in a shared slot, and reads the response from the second ring. CPU0's MPU guards CPU1's RAM read-only; the asymmetric silicon offers no guard in the other direction.</figcaption></figure>
 
 <p>Models are persistent objects in flash. A ping-pong registry pair with a generation counter and CRC32 gives atomic, power-loss-safe commits, and the newest valid copy wins at boot. Two 440 KB model slots are A/B: whichever slot the active registry does not reference is the staging target for the next over-the-air update. Every load passes a CRC gate. Registry commits take 1.9 to 2.6 ms and the boot scan 23 to 189 microseconds, measured on the board. A reset injected at 81 percent of a raw transfer left the store intact and the old model serving after reboot.</p>
 
@@ -45,6 +49,8 @@
 <p>Zephyr 3.7's eDMA driver never issues the software START that memory-to-memory transfers need on eDMA v4. Secure-alias pointers bus-error inside the DMA. The tensor arena itself turned out not to be DMA-reachable under the current bus security attributes, and because the SoC shares one no-error IRQ, a faulted transfer is a silent timeout. The ingest benchmark moved to DMA-reachable static buffers, where DMA lands 8 KB frames at 131 microseconds each against 460 for a CPU copy. Arena DMA visibility is still open.</p>
 
 <p>And a preempting submitter must outrank the scheduler thread, or it can never inject mid-job. QEMU's cooperative test threads had hidden that completely.</p>
+
+<figure class="fig"><!-- fig:syn-measured --><figcaption><b>Two offloads measured on the board.</b> eDMA ingest of 8 KB frames against a CPU copy, and the PowerQuad FFT against a software kernel using the hard FPU. The FFT gain is real but far from the 10x the plan asked for.</figcaption></figure>
 
 <p>The README records each of these, with the miss next to the fix. The PowerQuad DSP offload reaches 3.03x on a 256-point FFT and 1.72x on a Q15 matmul against hard-FPU software kernels, short of the 10x the plan asked for. The 500 KB in 10 seconds OTA target cannot be met at 115200 baud; the transport already runs at 98.7 percent of line rate, so the fix is a faster link, not more software.</p>
 
