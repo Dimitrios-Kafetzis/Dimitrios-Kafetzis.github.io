@@ -5,8 +5,8 @@
   <url><loc>https://dimitrios-kafetzis.github.io/projects.html</loc></url>
   <url><loc>https://dimitrios-kafetzis.github.io/publications.html</loc></url>
   <url><loc>https://dimitrios-kafetzis.github.io/blog.html</loc></url>
-  <url><loc>https://dimitrios-kafetzis.github.io/blog/inference-first-rtos.html</loc></url>
   <url><loc>https://dimitrios-kafetzis.github.io/blog/ten-patches-into-zephyr.html</loc></url>
+  <url><loc>https://dimitrios-kafetzis.github.io/blog/inference-first-rtos.html</loc></url>
   <url><loc>https://dimitrios-kafetzis.github.io/blog/splitting-an-llm-across-raspberry-pis.html</loc></url>
   <url><loc>https://dimitrios-kafetzis.github.io/blog/zero-allocation-inference-on-cortex-m.html</loc></url>
 </urlset>

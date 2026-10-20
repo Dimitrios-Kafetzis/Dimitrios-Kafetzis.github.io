@@ -2,7 +2,7 @@
   {
     "slug": "inference-first-rtos",
     "title": "Why I'm building an RTOS where inference is the primary workload",
-    "date": "2026-10-18",
+    "date": "2026-09-12",
     "summary": "What goes wrong when a neural network is bolted onto a scheduler built for control loops, and the design decisions behind SynapticOS.",
     "tags": [
       "SynapticOS",
@@ -25,7 +25,7 @@
   {
     "slug": "splitting-an-llm-across-raspberry-pis",
     "title": "What splitting an LLM across Raspberry Pis taught me",
-    "date": "2026-10-18",
+    "date": "2026-07-05",
     "summary": "A small language model does not fit one edge device. Lessons from a WiFi testbed, a simulator and two papers on partitioning inference.",
     "tags": [
       "LLM",
@@ -37,7 +37,7 @@
   {
     "slug": "zero-allocation-inference-on-cortex-m",
     "title": "Zero-allocation inference on Cortex-M: the design decisions behind EdgeNN",
-    "date": "2026-10-18",
+    "date": "2026-03-14",
     "summary": "Why a microcontroller inference library should never touch the heap, and how a static arena, INT8 arithmetic and a graph runtime fit in under 50 KB.",
     "tags": [
       "EdgeNN",
