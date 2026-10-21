@@ -402,3 +402,12 @@ table.projects td.role { color: var(--muted); min-width: 260px; }
 .article-body figure.fig svg { display: block; width: 100%; height: auto; max-width: 100%; font-family: var(--font-mono); color: var(--fg); }
 .article-body figure.fig figcaption { font-family: var(--font-sans); font-size: 0.9rem; color: var(--muted); margin-top: 12px; max-width: 70ch; line-height: 1.5; }
 .article-body figure.fig figcaption b { color: var(--fg); font-weight: 600; }
+
+/* Credential badges */
+.now.has-badge { position: relative; padding-right: 150px; }
+.now .badge-link { position: absolute; top: 18px; right: 18px; width: 120px; height: 120px; }
+.now .badge-link img { width: 120px; height: 120px; display: block; }
+.now .badge-link:hover { text-decoration: none; }
+@media (max-width: 520px) { .now.has-badge { padding-right: 22px; } .now .badge-link { position: static; margin-bottom: 10px; width: 96px; height: 96px; } .now .badge-link img { width: 96px; height: 96px; } }
+.awards li.with-badge { display: flex; gap: 14px; align-items: flex-start; }
+.awards li.with-badge img { flex: 0 0 64px; width: 64px; height: 64px; }
