@@ -718,3 +718,36 @@ def testbed_validation():
 
 for fn in [testbed_topology, testbed_pipeline, testbed_clock, testbed_validation]:
     fn()
+
+
+def testbed_phases():
+    f = Fig("testbed-phases", 760, 240, "One partitioned inference request: the device runs stages 1 to s locally, transmits the cut tensor over the wireless link, waits in the edge server's queue behind other devices' requests under round-robin or shortest-job-first, and the server runs stages s+1 to S; the testbed records each phase separately")
+    a = f.arrow_def()
+    x0, xe = 140, 720
+    rows = [("device i", 60), ("wireless link", 112), ("edge server", 164)]
+    for lbl, y in rows:
+        f.text(x0 - 14, y + 18, lbl, 12, "end", weight=600)
+        f.line(x0, y + 30, xe, y + 30, LINE, 1)
+    def blk(x, y, w, lbl, sub, fill, stroke, dash=None):
+        d = f' stroke-dasharray="{dash}"' if dash else ""
+        f.add(f'<rect x="{x}" y="{y + 2}" width="{w}" height="26" rx="3" fill="{fill}" stroke="{stroke}" stroke-width="1.2"{d}/>')
+        f.text(x + w / 2, y + (19 if not sub else 14), lbl, 10, "middle", weight=600)
+        if sub:
+            f.text(x + w / 2, y + 25, sub, 8, "middle", MUTED)
+    blk(x0, 60, 160, "local_ns", "stages 1 .. s on the device", S1, C1)
+    blk(x0 + 162, 112, 160, "transmission_ns", "cut tensor, first byte to ack", S3, C3)
+    blk(x0 + 324, 164, 120, "queue_wait_ns", "behind other devices", SURF, FG, "4 3")
+    blk(x0 + 446, 164, 130, "remote_ns", "stages s+1 .. S, RR or SJF", S2, C2)
+    blk(x0 + 578, 112, 52, "result", "", S3, C3)
+    # arrows between phases
+    f.line(x0 + 160, 88, x0 + 162, 112, FG, 1, arrow=a)
+    f.line(x0 + 322, 140, x0 + 324, 164, FG, 1, arrow=a)
+    f.line(x0 + 576, 166, x0 + 580, 140, FG, 1, arrow=a)
+    # end to end bracket
+    f.path(f"M{x0},212 v6 H{x0 + 630} v-6", MUTED, 1)
+    f.text(x0 + 290, 232, "end-to-end delay per request; every phase is an integer in nanoseconds from perf_counter_ns", 9.5, "middle", MUTED)
+    f.text(x0, 44, "partition point s: the layer after which computation moves to the server; s = S keeps everything local", 9.5, "start", MUTED)
+    f.render()
+
+
+testbed_phases()

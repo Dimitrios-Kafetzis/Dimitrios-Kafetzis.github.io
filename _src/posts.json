@@ -1,9 +1,9 @@
 [
   {
     "slug": "distributed-inference-testbed",
-    "title": "Building a testbed you can trust: five Raspberry Pis, one web app, and a thesis as the specification",
+    "title": "A reproducible testbed for partitioned inference on real edge devices",
     "date": "2026-10-25",
-    "summary": "The experimental platform of my PhD, rewritten so that every experiment is journaled, daemonless, clock-aligned and reproducible without the hardware.",
+    "summary": "Five Raspberry Pi 4 boards, an edge server and the NNPM web application: how the experimental platform of my PhD runs a partitioned-inference experiment end to end, under controlled network and compute conditions, and how anyone can rerun it.",
     "tags": [
       "Testbed",
       "Edge AI",
