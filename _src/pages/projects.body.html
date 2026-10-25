@@ -56,6 +56,14 @@
       </article>
 
       <article class="card" data-cat="inference">
+        <div class="top"><span class="cat">PhD testbed</span><span class="stars" data-repo="Distributed-Inference-Testbed" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
+        <h3><a href="https://github.com/Dimitrios-Kafetzis/Distributed-Inference-Testbed">Distributed Inference Testbed</a></h3>
+        <p>The experimental platform of my thesis. Five Raspberry Pi 4 boards on an isolated 802.11ac network and an edge server, driven end to end by the NNPM web application: scenarios, concurrent SSH dispatch, per-layer profiling under tc-netem shaping and compute load, INA260 power traces, the RR and SJF delay model and partition optimisation. Runs without hardware in local mode.</p>
+        <ul class="tags"><li>Python</li><li>TensorFlow</li><li>PyTorch</li><li>Flask</li><li>Raspberry Pi</li></ul>
+        <div class="links"><a href="https://dimitrios-kafetzis.github.io/Distributed-Inference-Testbed/">Docs</a><a href="https://doi.org/10.1145/3641512.3690629">Demo paper</a></div>
+      </article>
+
+      <article class="card" data-cat="inference">
         <div class="top"><span class="cat">Distributed LLM inference</span><span class="stars" data-repo="HeadSplit" hidden><svg viewBox="0 0 24 24"><path d="M12 .587l3.668 7.568L24 9.306l-6 5.847 1.416 8.26L12 19.446l-7.416 3.967L6 15.153 0 9.306l8.332-1.151z"/></svg><span class="n">0</span></span></div>
         <h3><a href="https://github.com/Dimitrios-Kafetzis/HeadSplit">HeadSplit</a></h3>
         <p>Reference implementation of the SPAWC 2026 paper. Each layer's attention heads are scheduled across devices so attention runs in parallel everywhere, and a speculative intermediate output is forwarded before the FFN completes. PyTorch RPC over WiFi on Raspberry Pi clusters.</p>
