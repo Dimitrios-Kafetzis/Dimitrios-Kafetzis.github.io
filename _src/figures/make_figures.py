@@ -577,3 +577,144 @@ if __name__ == "__main__":
                llm_partition, llm_speculation, llm_latency, llm_timeshare, llm_system,
                edgenn_arena, edgenn_int8, edgenn_format]:
         fn()
+
+
+# ----------------------------------------------------------------------------- Testbed
+
+def testbed_topology():
+    f = Fig("testbed-topology", 760, 320, "The testbed has two networks: an isolated 802.11ac data plane between the edge server's access point and the five boards, and a wired management plane through a switch for SSH, result collection, NTP and package installation")
+    a = f.arrow_def()
+    # edge server
+    f.rect(30, 70, 210, 150, SURF, FG, 1.4, 8)
+    f.text(135, 94, "edge server", 12, "middle", weight=600)
+    f.text(135, 110, "i7-9700K, 32 GB, Ubuntu 22.04", 9.5, "middle", MUTED)
+    for i, t in enumerate(["NNPM + orchestration", "access point 802.11ac", "NTP server, package mirror"]):
+        yy = 122 + i * 30
+        f.add(f'<rect x="45" y="{yy}" width="180" height="24" rx="4" fill="{S1}" stroke="{C1}" stroke-width="1"/>')
+        f.text(135, yy + 16, t, 10, "middle")
+    # switch
+    f.rect(330, 250, 110, 34, SURF2, LINE, 1, 6)
+    f.text(385, 271, "Ethernet switch", 10, "middle", weight=600)
+    # devices
+    ys = [30, 84, 138, 192, 246]
+    for i, y in enumerate(ys):
+        f.rect(560, y, 170, 42, SURF, FG, 1.2, 6)
+        f.text(645, y + 17, f"device {i + 1}  Raspberry Pi 4", 10.5, "middle", weight=600)
+        f.text(645, y + 32, "4 or 8 GB, INA260 on 5 V rail", 9, "middle", MUTED)
+        # wireless: thick accent from AP to device
+        f.line(240, 160, 560, y + 14, C1, 2.2)
+        # wired: thin from switch to device
+        f.line(440, 267, 560, y + 30, MUTED, 1, dash="3 3")
+    f.line(240, 200, 330, 267, MUTED, 1, dash="3 3")
+    # labels with halos
+    f.add(f'<rect x="262" y="26" width="276" height="34" rx="4" fill="{SURF}"/>')
+    f.text(400, 40, "data plane: isolated 5 GHz 802.11ac", 10, "middle", C1)
+    f.text(400, 54, "inference, ping, tc-netem; no default route", 10, "middle", MUTED)
+    f.add(f'<rect x="262" y="290" width="276" height="26" rx="4" fill="{SURF}"/>')
+    f.text(400, 302, "management plane: SSH dispatch, results, NTP, mirror", 10, "middle", MUTED)
+    f.render()
+
+
+def testbed_pipeline():
+    f = Fig("testbed-pipeline", 760, 290, "One experiment runs in seven stages; every change the apply stage makes is journaled with its undo action before the next step, and teardown replays the journal in reverse on success, failure, Stop or after a crash")
+    a = f.arrow_def()
+    stages = [("preflight", "metadata, NTP check"), ("apply", "shape, load, limits"), ("profile", "start signal T0"), ("collect", "scp + hostname"), ("aggregate", "3 thesis files"), ("optimise", "RR / SJF search"), ("teardown", "undo in reverse")]
+    w, gap, x, y = 96, 8, 19, 36
+    xs = []
+    for i, (t, s) in enumerate(stages):
+        hot = i in (1, 6)
+        f.rect(x, y, w, 50, S2 if hot else SURF, C2 if hot else FG, 1.2, 6)
+        f.text(x + w / 2, y + 21, t, 10.5, "middle", weight=600)
+        f.text(x + w / 2, y + 38, s, 8, "middle", MUTED)
+        xs.append(x)
+        if i < len(stages) - 1:
+            f.line(x + w, y + 25, x + w + gap - 1, y + 25, FG, 1.3, arrow=a)
+        x += w + gap
+    # journal ledger under apply
+    entries = ["edge_freq_restore", "cpufreq_restore", "cgroup_remove", "tc_clear", "stop_process (load)", "stop_process (monitor)"]
+    jx = xs[1] - 10
+    jy = 120
+    f.text(jx + 58, jy - 8, "journal.json", 9.5, "middle", weight=600)
+    for i, e in enumerate(entries):
+        yy = jy + i * 20
+        f.add(f'<rect x="{jx}" y="{yy}" width="116" height="17" rx="3" fill="{SURF}" stroke="{LINE}" stroke-width="1"/>')
+        f.text(jx + 58, yy + 12, e, 8, "middle", MUTED)
+    ar = f.arrow_def(C2, "j")
+    f.line(xs[1] + w / 2, y + 50, xs[1] + w / 2, jy - 20, C2, 1.3, arrow=ar)
+    f.text(jx + 130, jy + 4, "append the undo", 8.5, "start", MUTED)
+    f.text(jx + 130, jy + 16, "before the next step", 8.5, "start", MUTED)
+    # teardown pops in reverse
+    tx = xs[6] - 24
+    f.text(tx + 58, jy - 8, "undo, last first", 9.5, "middle", weight=600)
+    for i, e in enumerate(reversed(entries)):
+        yy = jy + i * 20
+        f.add(f'<rect x="{tx}" y="{yy}" width="116" height="17" rx="3" fill="{S1}" stroke="{C1}" stroke-width="1"/>')
+        f.text(tx + 58, yy + 12, e, 8, "middle")
+    f.line(xs[6] + w / 2, y + 50, xs[6] + w / 2, jy - 20, C1, 1.3, arrow=f.arrow_def(C1, "t"))
+    # triggers into teardown
+    f.path(f"M{xs[4] + 20},{jy + 60} H{tx - 14}", MUTED, 1, arrow=a, dash="3 3")
+    f.text(xs[4] - 10, jy + 50, "also on failure, Stop,", 8.5, "start", MUTED)
+    f.text(xs[4] - 10, jy + 74, "crash + clean_devices.sh", 8.5, "start", MUTED)
+    f.text(380, 272, "nothing stays resident: every device process is tagged testbed-&lt;run id&gt;, grouped, and killed by group", 9.5, "middle", MUTED)
+    f.render()
+
+
+def testbed_clock():
+    f = Fig("testbed-clock", 760, 230, "Each board has its own monotonic counter; at the shared start instant T0 every board captures wall time and counter together, so any later sample maps to the common clock by arithmetic")
+    a = f.arrow_def()
+    x0, xe = 150, 700
+    t0 = 330
+    rows = [("device 1", 54, 0), ("device 2", 104, 37), ("device 3", 154, 18)]
+    for lbl, y, off in rows:
+        f.text(x0 - 14, y + 4, lbl, 12, "end", weight=600)
+        f.line(x0, y, xe, y, LINE, 1.2, arrow=a)
+        # ticks with different zeros
+        for k in range(12):
+            tx = x0 + off + k * 48
+            if tx < xe - 10:
+                f.line(tx, y - 4, tx, y + 4, MUTED, 1)
+        f.text(x0 + off, y + 17, "perf_counter_ns = 0", 8.5, "start", MUTED)
+        # capture at T0
+        f.add(f'<circle cx="{t0}" cy="{y}" r="5" fill="{C2}" stroke="{SURF}" stroke-width="2"/>')
+        # sample later
+        sx = t0 + 180
+        f.add(f'<circle cx="{sx}" cy="{y}" r="4" fill="{C1}" stroke="{SURF}" stroke-width="2"/>')
+    f.line(t0, 30, t0, 172, C2, 1.2, dash="4 3")
+    f.text(t0, 22, "T0: start signal, 3 s ahead", 10, "middle", C2)
+    f.text(t0 + 180, 184, "sample", 9.5, "middle", C1)
+    f.text(x0, 206, "wall = origin.wall_time_s + (sample.perf_counter_ns - origin.perf_counter_ns) / 1e9", 10, "start")
+    f.text(x0, 222, "preflight refuses to start if any device's NTP offset exceeds 1 ms (chrony on the edge server)", 9.5, "start", MUTED)
+    f.render()
+
+
+def testbed_validation():
+    f = Fig("testbed-validation", 760, 190, "Chapter 4 validation on four boards with AlexNet, 50 runs per policy: the delay model predicted 1042 ms under round-robin and the testbed measured 1087 plus or minus 34; under shortest-job-first 986 predicted against 1021 plus or minus 29")
+    x0, xmax = 190, 690
+    sc = (xmax - x0) / 1500
+    groups = [("round-robin", 1042, 1087, 34, "+4.3%"), ("shortest-job-first", 986, 1021, 29, "+3.6%")]
+    y = 30
+    for name, pred, meas, err, gap in groups:
+        f.text(x0 - 14, y + 4, name, 12, "end", weight=600)
+        f.hbar(x0, y + 10, pred * sc, 18, C3)
+        f.text(x0 - 14, y + 23, "predicted", 10, "end", MUTED)
+        f.text(x0 + pred * sc + 8, y + 23, f"{pred:,} ms", 10.5, "start")
+        yy = y + 32
+        f.hbar(x0, yy, meas * sc, 18, C1)
+        f.text(x0 - 14, yy + 13, "measured", 10, "end", MUTED)
+        ex0, ex1 = x0 + (meas - err) * sc, x0 + (meas + err) * sc
+        f.line(ex0, yy + 9, ex1, yy + 9, FG, 1.4)
+        f.line(ex0, yy + 4, ex0, yy + 14, FG, 1.4)
+        f.line(ex1, yy + 4, ex1, yy + 14, FG, 1.4)
+        f.text(ex1 + 8, yy + 13, f"{meas:,} ± {err} ms  ({gap})", 10.5, "start")
+        y += 70
+    f.line(x0, 26, x0, 166, LINE, 1)
+    ly = 178
+    f.add(f'<rect x="{x0}" y="{ly - 10}" width="14" height="12" rx="2" fill="{C3}"/>')
+    f.text(x0 + 20, ly, "analytical delay model", 10, "start", MUTED)
+    f.add(f'<rect x="{x0 + 190}" y="{ly - 10}" width="14" height="12" rx="2" fill="{C1}"/>')
+    f.text(x0 + 210, ly, "testbed, mean ± std over 50 runs", 10, "start", MUTED)
+    f.render()
+
+
+for fn in [testbed_topology, testbed_pipeline, testbed_clock, testbed_validation]:
+    fn()

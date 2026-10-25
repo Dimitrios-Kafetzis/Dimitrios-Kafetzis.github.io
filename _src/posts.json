@@ -1,5 +1,18 @@
 [
   {
+    "slug": "distributed-inference-testbed",
+    "title": "Building a testbed you can trust: five Raspberry Pis, one web app, and a thesis as the specification",
+    "date": "2026-10-25",
+    "summary": "The experimental platform of my PhD, rewritten so that every experiment is journaled, daemonless, clock-aligned and reproducible without the hardware.",
+    "tags": [
+      "Testbed",
+      "Edge AI",
+      "Raspberry Pi",
+      "Reproducibility",
+      "PhD"
+    ]
+  },
+  {
     "slug": "inference-first-rtos",
     "title": "Why I'm building an RTOS where inference is the primary workload",
     "date": "2026-09-12",
